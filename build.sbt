@@ -19,6 +19,7 @@ libraryDependencies ++= {
     "com.typesafe.akka"   %% "akka-http-experimental"               % akkaStreamVersion,
     "com.typesafe.akka"   %% "akka-http-core-experimental"          % akkaStreamVersion,
     "com.typesafe.akka"   %% "akka-http-testkit-experimental"       % akkaStreamVersion,
+    "com.typesafe.akka"	  %% "akka-http-spray-json"	                % "10.0.9",
     "com.typesafe.slick"  %% "slick"                                % slickV,
     "com.typesafe.slick"  %% "slick-hikaricp"                       % slickV,
     "com.byteslounge"     %% "slick-repo"                           % "1.4.3",
