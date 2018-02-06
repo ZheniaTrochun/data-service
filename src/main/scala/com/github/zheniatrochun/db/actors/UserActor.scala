@@ -3,6 +3,7 @@ package com.github.zheniatrochun.db.actors
 import akka.actor.Actor
 import com.github.zheniatrochun.db.repositories.UserRepository
 import com.github.zheniatrochun.db.models.requests._
+import com.github.zheniatrochun.exceptions.UserAlreadyExistsException
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
@@ -24,7 +25,13 @@ class UserActor(val dbConfig: DatabaseConfig[JdbcProfile]) extends Actor {
       sender() ! db.run { userRepository.findOneByEmail(email) }
 
     case CreateUser(user) =>
-      sender() ! db.run { userRepository.save(user) }
+      db.run { userRepository.findOneByEmail(user.email) } foreach {
+        case Some(_) =>
+          sender() ! UserAlreadyExistsException
+
+        case None =>
+          sender() ! db.run { userRepository.save(user) }
+      }
 
     case DeleteUser(id) =>
       sender() ! db.run { userRepository.deleteById(id) }

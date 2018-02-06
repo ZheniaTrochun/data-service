@@ -5,7 +5,7 @@ import com.byteslounge.slickrepo.repository.Repository
 import com.byteslounge.slickrepo.scalaversion.JdbcProfile
 import com.github.zheniatrochun.db.models.User
 import slick.ast.BaseTypedType
-import slick.dbio.{DBIOAction, NoStream}
+import slick.sql.{FixedSqlAction, SqlAction}
 
 class UserRepository(override val driver: JdbcProfile) extends Repository[User, Int](driver) {
 
@@ -16,15 +16,23 @@ class UserRepository(override val driver: JdbcProfile) extends Repository[User, 
   override def tableQuery = TableQuery[Users]
 
 
-  def findOneByName(name: String) = {
-    tableQuery.filter(_.name === name).result
+  def setupSchema(): FixedSqlAction[Unit, NoStream, Effect.Schema] = {
+    tableQuery.schema.create
   }
 
-  def findOneByEmail(email: String) = {
-    tableQuery.filter(_.email === email).result
+  def dropSchema(): FixedSqlAction[Unit, NoStream, Effect.Schema] = {
+    tableQuery.schema.drop
   }
 
-  def deleteById(id: Int) = {
+  def findOneByName(name: String): SqlAction[Option[User], NoStream, Effect.Read] = {
+    tableQuery.filter(_.name === name).result.headOption
+  }
+
+  def findOneByEmail(email: String): SqlAction[Option[User], NoStream, Effect.Read] = {
+    tableQuery.filter(_.email === email).result.headOption
+  }
+
+  def deleteById(id: Int): FixedSqlAction[Int, NoStream, Effect.Write] = {
     tableQuery.filter(_.id === id).delete
   }
 
