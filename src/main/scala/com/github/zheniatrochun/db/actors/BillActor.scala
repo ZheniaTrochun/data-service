@@ -1,14 +1,19 @@
 package com.github.zheniatrochun.db.actors
 
-import akka.actor.Actor
+import akka.actor.{Actor, ActorSystem}
+import akka.util.Timeout
 import com.github.zheniatrochun.models.Bill
 import com.github.zheniatrochun.models.requests._
 import com.github.zheniatrochun.db.repositories.BillRepository
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class BillActor(val dbConfig: DatabaseConfig[JdbcProfile]) extends Actor {
+
+class BillActor(val dbConfig: DatabaseConfig[JdbcProfile])
+               (implicit val system: ActorSystem, implicit val timeout: Timeout)
+  extends Actor {
 
   val db = dbConfig.db
   val driver = dbConfig.profile

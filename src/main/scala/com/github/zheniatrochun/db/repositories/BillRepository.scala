@@ -36,7 +36,7 @@ class BillRepository(override val driver: JdbcProfile) extends Repository[Bill, 
   }
 
 
-  private class Bills(tag: Tag) extends Table[Bill](tag, "BILLS") with Keyed[Int] {
+  class Bills(tag: Tag) extends Table[Bill](tag, "BILLS") with Keyed[Int] {
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
     def user = column[Int]("user")
     def date = column[Date]("date", O.SqlType("DATE"))

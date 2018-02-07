@@ -1,19 +1,22 @@
 package com.github.zheniatrochun.api
 
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.github.zheniatrochun.models.User
+//import com.github.zheniatrochun.models.json.JsonProtocol
+import com.github.zheniatrochun.models.json.JsonProtocol._
 import spray.json._
-import com.github.zheniatrochun.models.json.JsonProtocol
 import com.github.zheniatrochun.services.UserService
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
 
 class UserRoutes(val userService: UserService) {
 
-  val userRoutes = {
+  val routes = {
     path("users") {
       (path("create") & post) {
         entity(as[User]) { user =>
@@ -26,7 +29,7 @@ class UserRoutes(val userService: UserService) {
         }
       } ~
       (path("delete") & delete) {
-        entity(as[Int]) { id =>
+        parameters('id.as[Int]) { id =>
           completeWithFuture(userService.delete(id))
         }
       } ~
@@ -50,20 +53,13 @@ class UserRoutes(val userService: UserService) {
 
       case Success(success) =>
         success match {
-          case res: Option[User] =>
+          case res: Option[_] =>
             res match {
-              case Some(user) =>
+              case Some(user: User) =>
                 val response = HttpResponse(StatusCodes.OK, entity = buildEntity(user))
                 complete(response)
 
-              case None =>
-                val response = HttpResponse(StatusCodes.BadRequest)
-                complete(response)
-            }
-
-          case res: Option[Int] =>
-            res match {
-              case Some(id) =>
+              case Some(id: Int) =>
                 val response = HttpResponse(StatusCodes.OK, entity = buildEntity(id))
                 complete(response)
 

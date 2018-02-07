@@ -2,12 +2,13 @@ package com.github.zheniatrochun.models.json
 
 import java.sql.Date
 
+import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import com.github.zheniatrochun.models.{Bill, User}
 import org.joda.time.DateTime
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
 import spray.json.{DefaultJsonProtocol, DeserializationException, JsString, JsValue, RootJsonFormat}
 
-object JsonProtocol extends DefaultJsonProtocol {
+object JsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
 
   implicit object DateJsonFormat extends RootJsonFormat[DateTime] {
 

@@ -1,18 +1,25 @@
 package com.github.zheniatrochun.db.actors
 
-import akka.actor.Actor
+import akka.actor.{Actor, ActorSystem}
+import akka.util.Timeout
 import com.github.zheniatrochun.db.repositories.UserRepository
 import com.github.zheniatrochun.models.requests._
 import com.github.zheniatrochun.exceptions.UserAlreadyExistsException
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
-class UserActor(val dbConfig: DatabaseConfig[JdbcProfile]) extends Actor {
+import scala.concurrent.ExecutionContext.Implicits.global
+
+class UserActor(val dbConfig: DatabaseConfig[JdbcProfile])
+               (implicit val system: ActorSystem, implicit val timeout: Timeout)
+  extends Actor {
 
   val db = dbConfig.db
   val driver = dbConfig.profile
 
   val userRepository = new UserRepository(driver)
+
+  db.run { userRepository.setupSchema() }
 
   override def receive = {
     case FindUserById(id) =>
