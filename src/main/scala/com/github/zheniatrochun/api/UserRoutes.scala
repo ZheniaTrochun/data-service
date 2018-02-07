@@ -1,25 +1,44 @@
 package com.github.zheniatrochun.api
 
-import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.model._
-import akka.pattern.ask
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.github.zheniatrochun.models.User
-import com.github.zheniatrochun.models.requests.CreateUser
 import spray.json._
 import com.github.zheniatrochun.models.json.JsonProtocol
+import com.github.zheniatrochun.services.UserService
 
 import scala.concurrent.Future
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
-class UserRoutes(val dbActor: ActorRef)(implicit val system: ActorSystem) {
+class UserRoutes(val userService: UserService) {
 
   val userRoutes = {
     path("users") {
       (path("create") & post) {
         entity(as[User]) { user =>
-          completeWithFuture(createUser(user))
+          completeWithFuture(userService.create(user))
+        }
+      } ~
+      (path("update") & put) {
+        entity(as[User]) { user =>
+          completeWithFuture(userService.update(user))
+        }
+      } ~
+      (path("delete") & delete) {
+        entity(as[Int]) { id =>
+          completeWithFuture(userService.delete(id))
+        }
+      } ~
+      (path("get") & get) {
+        parameters('id.as[Int]) { id =>
+          completeWithFuture(userService.getById(id))
+        } ~
+        parameters('name.as[String]) { name =>
+          completeWithFuture(userService.getByName(name))
+        } ~
+        parameters('email.as[String]) { email =>
+          completeWithFuture(userService.getByEmail(email))
         }
       }
     }
@@ -28,30 +47,38 @@ class UserRoutes(val dbActor: ActorRef)(implicit val system: ActorSystem) {
 
   def completeWithFuture(f: => Future[Option[Any]]): Route = {
     onComplete(f) {
-      case res: Try[Option[User]] =>
-        res.get match {
-          case Some(user) =>
-            val response = HttpResponse(StatusCodes.OK, entity = buildEntity(user))
-            complete(response)
 
-          case None =>
-            val response = HttpResponse(StatusCodes.BadRequest)
+      case Success(success) =>
+        success match {
+          case res: Option[User] =>
+            res match {
+              case Some(user) =>
+                val response = HttpResponse(StatusCodes.OK, entity = buildEntity(user))
+                complete(response)
+
+              case None =>
+                val response = HttpResponse(StatusCodes.BadRequest)
+                complete(response)
+            }
+
+          case res: Option[Int] =>
+            res match {
+              case Some(id) =>
+                val response = HttpResponse(StatusCodes.OK, entity = buildEntity(id))
+                complete(response)
+
+              case None =>
+                val response = HttpResponse(StatusCodes.BadRequest)
+                complete(response)
+            }
+
+          case _ =>
+            val response = HttpResponse(StatusCodes.InternalServerError)
             complete(response)
         }
 
 
-      case res: Try[Option[Int]] =>
-        res.get match {
-          case Some(id) =>
-            val response = HttpResponse(StatusCodes.OK, entity = buildEntity(id))
-            complete(response)
-
-          case None =>
-            val response = HttpResponse(StatusCodes.BadRequest)
-            complete(response)
-        }
-
-      case _ =>
+      case Failure(err) =>
         val response = HttpResponse(StatusCodes.InternalServerError)
         complete(response)
     }
@@ -63,12 +90,5 @@ class UserRoutes(val dbActor: ActorRef)(implicit val system: ActorSystem) {
 
   def buildEntity(id: Int): ResponseEntity = {
     HttpEntity(s"""{id:$id}""").withContentType(ContentType(MediaTypes.`application/json`))
-  }
-
-  def createUser(user: User): Future[Option[User]] = {
-    dbActor ? CreateUser(user) flatMap {
-      case res: Option[User] =>
-        Future.successful(res)
-    }
   }
 }
