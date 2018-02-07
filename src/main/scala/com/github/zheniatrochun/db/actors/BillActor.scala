@@ -1,8 +1,8 @@
 package com.github.zheniatrochun.db.actors
 
 import akka.actor.Actor
-import com.github.zheniatrochun.db.models.Bill
-import com.github.zheniatrochun.db.models.requests._
+import com.github.zheniatrochun.models.Bill
+import com.github.zheniatrochun.models.requests._
 import com.github.zheniatrochun.db.repositories.BillRepository
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile

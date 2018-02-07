@@ -5,7 +5,7 @@ import java.sql.Date
 import com.byteslounge.slickrepo.meta.Keyed
 import com.byteslounge.slickrepo.repository.Repository
 import com.byteslounge.slickrepo.scalaversion.JdbcProfile
-import com.github.zheniatrochun.db.models.Bill
+import com.github.zheniatrochun.models.Bill
 import slick.ast.BaseTypedType
 import slick.sql.{FixedSqlAction, FixedSqlStreamingAction}
 

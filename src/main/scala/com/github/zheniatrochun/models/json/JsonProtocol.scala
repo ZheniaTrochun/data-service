@@ -1,0 +1,37 @@
+package com.github.zheniatrochun.models.json
+
+import java.sql.Date
+
+import com.github.zheniatrochun.models.{Bill, User}
+import org.joda.time.DateTime
+import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
+import spray.json.{DefaultJsonProtocol, DeserializationException, JsString, JsValue, RootJsonFormat}
+
+object JsonProtocol extends DefaultJsonProtocol {
+
+  implicit object DateJsonFormat extends RootJsonFormat[DateTime] {
+
+    private val parserISO : DateTimeFormatter = ISODateTimeFormat.dateTimeNoMillis()
+
+    override def write(obj: DateTime) = JsString(parserISO.print(obj))
+
+    override def read(json: JsValue) : DateTime = json match {
+      case JsString(s) => parserISO.parseDateTime(s)
+      case _ => throw DeserializationException("Invalid date format: " + json)
+    }
+  }
+
+  implicit object SqlDateJsonFormat extends RootJsonFormat[Date] {
+
+    override def write(obj: Date) = JsString(obj.toString)
+    override def read(json: JsValue) = json match {
+      case JsString(s) => Date.valueOf(s)
+      case _ => throw DeserializationException("Invalid date format: " + json)
+    }
+
+  }
+
+
+  implicit val userFormat = jsonFormat3(User)
+  implicit val billFormat = jsonFormat5(Bill)
+}

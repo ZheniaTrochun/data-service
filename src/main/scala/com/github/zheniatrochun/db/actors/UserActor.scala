@@ -2,7 +2,7 @@ package com.github.zheniatrochun.db.actors
 
 import akka.actor.Actor
 import com.github.zheniatrochun.db.repositories.UserRepository
-import com.github.zheniatrochun.db.models.requests._
+import com.github.zheniatrochun.models.requests._
 import com.github.zheniatrochun.exceptions.UserAlreadyExistsException
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile

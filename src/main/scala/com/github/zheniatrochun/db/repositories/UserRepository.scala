@@ -3,7 +3,7 @@ package com.github.zheniatrochun.db.repositories
 import com.byteslounge.slickrepo.meta.Keyed
 import com.byteslounge.slickrepo.repository.Repository
 import com.byteslounge.slickrepo.scalaversion.JdbcProfile
-import com.github.zheniatrochun.db.models.User
+import com.github.zheniatrochun.models.User
 import slick.ast.BaseTypedType
 import slick.sql.{FixedSqlAction, SqlAction}
 

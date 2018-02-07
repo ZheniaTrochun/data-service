@@ -1,6 +1,6 @@
-package com.github.zheniatrochun.db.models.requests
+package com.github.zheniatrochun.models.requests
 
-import com.github.zheniatrochun.db.models.Bill
+import com.github.zheniatrochun.models.Bill
 
 trait BillDatabaseRequest
 

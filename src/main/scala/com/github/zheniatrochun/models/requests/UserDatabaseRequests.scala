@@ -1,6 +1,6 @@
-package com.github.zheniatrochun.db.models.requests
+package com.github.zheniatrochun.models.requests
 
-import com.github.zheniatrochun.db.models.User
+import com.github.zheniatrochun.models.User
 
 trait UserDatabaseRequest
 

@@ -24,6 +24,7 @@ libraryDependencies ++= {
     "com.typesafe.slick"  %% "slick-hikaricp"                       % slickV,
     "com.byteslounge"     %% "slick-repo"                           % "1.4.3",
     "com.h2database"       % "h2"                                   % "1.3.175",
+    "joda-time"            % "joda-time"                            % "2.9.9",
     "org.scalatest"       %% "scalatest"                            % "2.2.5" % "test",
     "com.typesafe.akka"   %% "akka-testkit"                         % akkaVersion % "test"
   )
