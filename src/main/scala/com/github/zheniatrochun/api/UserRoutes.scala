@@ -1,6 +1,5 @@
 package com.github.zheniatrochun.api
 
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
@@ -12,7 +11,7 @@ import com.github.zheniatrochun.services.UserService
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport._
+
 
 class UserRoutes(val userService: UserService) {
 
