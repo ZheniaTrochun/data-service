@@ -42,6 +42,6 @@ class UserRepository(override val driver: JdbcProfile) extends Repository[User, 
     def name = column[String]("name", O.SqlType("VARCHAR(20)"), O.Unique)
     def email = column[String]("email", O.SqlType("VARCHAR(30)"), O.Unique)
 
-    override def * = (id, name, email) <> ((User.apply _).tupled, User.unapply)
+    override def * = (id.?, name, email) <> ((User.apply _).tupled, User.unapply)
   }
 }

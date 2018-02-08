@@ -65,6 +65,10 @@ class UserRoutes(val userService: UserService) {
               case None =>
                 val response = HttpResponse(StatusCodes.BadRequest)
                 complete(response)
+
+              case _ =>
+                val response = HttpResponse(StatusCodes.InternalServerError)
+                complete(response)
             }
 
           case _ =>

@@ -15,18 +15,18 @@ libraryDependencies ++= {
 
   Seq(
     "com.typesafe.akka"   %% "akka-actor"                           % akkaVersion,
-    "com.typesafe.akka"   %% "akka-http"               % akkaStreamVersion,
-    "com.typesafe.akka"   %% "akka-http-core"          % akkaStreamVersion,
-    "com.typesafe.akka"   %% "akka-http-testkit"       % akkaStreamVersion,
-    "com.typesafe.akka" %% "akka-http-spray-json" % "10.0.9",
+    "com.typesafe.akka"   %% "akka-http"                            % akkaStreamVersion,
+    "com.typesafe.akka"   %% "akka-http-core"                       % akkaStreamVersion,
+    "com.typesafe.akka"   %% "akka-http-testkit"                    % akkaStreamVersion,
+    "com.typesafe.akka"   %% "akka-http-spray-json"                 % "10.0.9",
     "com.typesafe.slick"  %% "slick"                                % slickV,
     "com.typesafe.slick"  %% "slick-hikaricp"                       % slickV,
     "com.byteslounge"     %% "slick-repo"                           % "1.4.3",
     "com.h2database"       % "h2"                                   % "1.3.175",
     "joda-time"            % "joda-time"                            % "2.9.9",
     "org.joda"             % "joda-convert"                         % "1.8.1",
-    "org.scalatest"       %% "scalatest"                            % "2.2.5" % "test",
-    "com.typesafe.akka"   %% "akka-testkit"                         % akkaVersion % "test"
+    "org.scalatest"       %% "scalatest"                            % "2.2.5"               % "test",
+    "com.typesafe.akka"   %% "akka-testkit"                         % akkaVersion           % "test"
   )
 }
 

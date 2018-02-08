@@ -31,7 +31,7 @@ class UserServiceImpl(val dbActor: ActorRef)(implicit val timeout: Timeout)
   override def create(user: User): Future[Option[Int]] = {
     dbActor ? CreateUser(user) flatMap {
       case user: User =>
-        Future.successful(Some(user.id))
+        Future.successful(user.id)
 
       case err: Exception =>
         Future.failed(err)
