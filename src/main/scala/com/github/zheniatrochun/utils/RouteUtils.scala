@@ -32,18 +32,11 @@ trait RouteUtils {
     }
   }
 
+  def idAsJson(f: Future[Option[Int]]): Future[Option[JsValue]] = {
+    f map(res => res.map(id => s"""{id:$id}""".toJson))
+  }
+
   private def buildEntity(obj: JsValue): ResponseEntity = {
     HttpEntity(obj.toString).withContentType(ContentType(MediaTypes.`application/json`))
   }
-
-  def idAsJson(f: Future[Option[Int]]): Future[Option[JsValue]] = {
-    f flatMap {
-      case Some(id) =>
-        Future.successful(Some(s"""{id:$id}""".toJson))
-
-      case None =>
-        Future.successful(None)
-    }
-  }
-
 }

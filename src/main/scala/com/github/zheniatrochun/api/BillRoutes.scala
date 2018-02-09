@@ -23,7 +23,7 @@ class BillRoutes(val billService: BillService) extends RouteUtils {
         (path("update") & put) {
           entity(as[Bill]) { bill =>
             completeWithFuture {
-              billAsJson(billService.update(bill))
+              billService.update(bill).map(res => res.map(_.toJson))
             }
           }
         } ~
@@ -37,7 +37,7 @@ class BillRoutes(val billService: BillService) extends RouteUtils {
         (path("get") & get) {
           parameters('id.as[Int]) { id =>
             completeWithFuture {
-              billAsJson(billService.getById(id))
+              billService.getById(id).map(res => res.map(_.toJson))
             }
           }
         }
