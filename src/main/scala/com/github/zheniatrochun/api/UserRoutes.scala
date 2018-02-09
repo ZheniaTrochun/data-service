@@ -7,8 +7,6 @@ import com.github.zheniatrochun.utils.RouteUtils
 import com.github.zheniatrochun.models.json.JsonProtocol._
 import spray.json._
 
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 
 
 class UserRoutes(val userService: UserService) extends RouteUtils {
@@ -18,51 +16,41 @@ class UserRoutes(val userService: UserService) extends RouteUtils {
       (path("create") & post) {
         entity(as[User]) { user =>
           completeWithFuture {
-            idAsJson(userService.create(user))
+            userService.create(user).toFutureJson
           }
         }
       } ~
       (path("update") & put) {
         entity(as[User]) { user =>
           completeWithFuture {
-            userAsJson(userService.update(user))
+            userService.update(user).toFutureJson
           }
         }
       } ~
       (path("delete") & delete) {
         parameters('id.as[Int]) { id =>
           completeWithFuture {
-            idAsJson(userService.delete(id))
+            userService.delete(id).toFutureJson
           }
         }
       } ~
       (path("get") & get) {
         parameters('id.as[Int]) { id =>
           completeWithFuture {
-            userAsJson(userService.getById(id))
+            userService.getById(id).toFutureJson
           }
         } ~
         parameters('name.as[String]) { name =>
           completeWithFuture {
-            userAsJson(userService.getByName(name))
+            userService.getByName(name).toFutureJson
           }
         } ~
         parameters('email.as[String]) { email =>
           completeWithFuture {
-            userAsJson(userService.getByEmail(email))
+            userService.getByEmail(email).toFutureJson
           }
         }
       }
-    }
-  }
-
-  private def userAsJson(f: Future[Option[User]]): Future[Option[JsValue]] = {
-    f flatMap {
-      case Some(user) =>
-        Future.successful(Some(user.toJson))
-
-      case None =>
-        Future.successful(None)
     }
   }
 }

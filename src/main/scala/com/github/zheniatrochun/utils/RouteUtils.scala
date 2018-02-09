@@ -12,6 +12,15 @@ import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait RouteUtils {
+
+  implicit val idWriter: JsonWriter[Int] = IdWriter
+
+  implicit class jsonFromOptionalFuture[T](f: Future[Option[T]]) {
+    def toFutureJson(implicit writer: JsonWriter[T]): Future[Option[JsValue]] = {
+      f.map(res => res.map(_.toJson))
+    }
+  }
+
   def completeWithFuture(f: => Future[Option[JsValue]]): Route = {
     onComplete(f) {
 
@@ -32,11 +41,11 @@ trait RouteUtils {
     }
   }
 
-  def idAsJson(f: Future[Option[Int]]): Future[Option[JsValue]] = {
-    f map(res => res.map(id => s"""{id:$id}""".toJson))
-  }
-
   private def buildEntity(obj: JsValue): ResponseEntity = {
     HttpEntity(obj.toString).withContentType(ContentType(MediaTypes.`application/json`))
+  }
+
+  private object IdWriter extends JsonWriter[Int] {
+    override def write(obj: Int): JsValue = s"""{id:$obj}""".toJson
   }
 }

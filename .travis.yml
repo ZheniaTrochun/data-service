@@ -6,4 +6,3 @@ jdk: oraclejdk8
 
 script: sbt clean test -Dsbt.override.build.repos=true -Dsbt.repository.config=./proxy-sbt-repositories
 
-before_script: mkdir -p $HOME/.sbt/launchers/0.13.11 && curl -L -o $HOME/.sbt/launchers/0.13.11/sbt-launch.jar http://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.11/sbt-launch.jar

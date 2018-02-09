@@ -1,14 +1,12 @@
 package com.github.zheniatrochun.api
 
 import akka.http.scaladsl.server.Directives._
-import com.github.zheniatrochun.models.{Bill, User}
+import com.github.zheniatrochun.models.Bill
 import com.github.zheniatrochun.services.BillService
 import com.github.zheniatrochun.utils.RouteUtils
 import com.github.zheniatrochun.models.json.JsonProtocol._
 import spray.json._
 
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class BillRoutes(val billService: BillService) extends RouteUtils {
   val routes = {
@@ -16,41 +14,31 @@ class BillRoutes(val billService: BillService) extends RouteUtils {
       (path("create") & post) {
         entity(as[Bill]) { bill =>
           completeWithFuture {
-            idAsJson(billService.create(bill))
+            billService.create(bill).toFutureJson
           }
         }
       } ~
         (path("update") & put) {
           entity(as[Bill]) { bill =>
             completeWithFuture {
-              billService.update(bill).map(res => res.map(_.toJson))
+              billService.update(bill).toFutureJson
             }
           }
         } ~
         (path("delete") & delete) {
           parameters('id.as[Int]) { id =>
             completeWithFuture {
-              idAsJson(billService.delete(id))
+              billService.delete(id).toFutureJson
             }
           }
         } ~
         (path("get") & get) {
           parameters('id.as[Int]) { id =>
             completeWithFuture {
-              billService.getById(id).map(res => res.map(_.toJson))
+              billService.getById(id).toFutureJson
             }
           }
         }
-    }
-  }
-
-  private def billAsJson(f: Future[Option[Bill]]): Future[Option[JsValue]] = {
-    f flatMap {
-      case Some(bill) =>
-        Future.successful(Some(bill.toJson))
-
-      case None =>
-        Future.successful(None)
     }
   }
 }

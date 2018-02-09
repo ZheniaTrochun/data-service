@@ -31,3 +31,4 @@ libraryDependencies ++= {
 }
 
 Revolver.settings
+resolvers += "typesave" at "http://repo.typesafe.com/typesafe/releases"
