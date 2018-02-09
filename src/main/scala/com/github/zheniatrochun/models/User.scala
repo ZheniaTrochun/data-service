@@ -6,3 +6,4 @@ case class User(id: Option[Int], name: String, email: String) extends Entity[Use
   override def withId(id: Int): User = this.copy(id = Some(id))
 }
 
+

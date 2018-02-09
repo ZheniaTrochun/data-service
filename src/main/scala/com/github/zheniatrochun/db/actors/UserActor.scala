@@ -1,19 +1,23 @@
 package com.github.zheniatrochun.db.actors
 
 import akka.actor.{Actor, ActorSystem}
+import akka.pattern.pipe
 import akka.util.Timeout
 import com.github.zheniatrochun.db.repositories.UserRepository
 import com.github.zheniatrochun.models.requests._
-import com.github.zheniatrochun.exceptions.UserAlreadyExistsException
+import com.github.zheniatrochun.exceptions.UserAlreadyExists
 import com.github.zheniatrochun.utils.ActorUtils
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
+// TODO use pipe pattern!!!!!!!!
 class UserActor(val dbConfig: DatabaseConfig[JdbcProfile])
                (implicit val system: ActorSystem, implicit val timeout: Timeout)
   extends Actor with ActorUtils {
+
+  import context.dispatcher
 
   val db = dbConfig.db
   val driver = dbConfig.profile
@@ -33,13 +37,19 @@ class UserActor(val dbConfig: DatabaseConfig[JdbcProfile])
       db.run { userRepository.findOneByEmail(email) } sendResponseTo sender
 
     case CreateUser(user) =>
-      db.run { userRepository.findOneByEmail(user.email) } foreach {
-        case Some(_) =>
-          sender ! UserAlreadyExistsException
+      pipe {
+        db.run {
+          userRepository.findOneByEmail(user.email)
+        } flatMap  {
+          case Some(_) =>
+            Future.successful(UserAlreadyExists)
 
-        case None =>
-          db.run { userRepository.save(user) } sendResponseTo sender
-      }
+          case None =>
+            db.run {
+              userRepository.save(user)
+            }
+        }
+      } to sender
 
     case DeleteUser(id) =>
       db.run { userRepository.deleteById(id) } sendResponseTo sender

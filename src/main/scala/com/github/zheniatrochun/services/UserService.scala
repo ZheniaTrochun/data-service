@@ -2,14 +2,13 @@ package com.github.zheniatrochun.services
 
 import akka.actor.{ActorRef, ActorSystem}
 import com.github.zheniatrochun.models.User
-import akka.pattern.ask
+import akka.pattern.{AskableActorRef, ask}
 import akka.util.Timeout
+import com.github.zheniatrochun.exceptions.UserAlreadyExists
 import com.github.zheniatrochun.models.requests._
 
-import scala.concurrent.Future
-
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
-
 
 trait UserService {
   def create(user: User): Future[Option[Int]]
@@ -25,16 +24,20 @@ trait UserService {
   def getByEmail(email: String): Future[Option[User]]
 }
 
-class UserServiceImpl(val dbActor: ActorRef)(implicit val timeout: Timeout)
+class UserServiceImpl(val dbActor: AskableActorRef)(implicit val timeout: Timeout)
   extends UserService {
 
   override def create(user: User): Future[Option[Int]] = {
-    dbActor ? CreateUser(user) flatMap {
+    val ask = dbActor ? CreateUser(user)
+    ask flatMap {
+      case id: Int =>
+        Future.successful(Some(id))
+
       case user: User =>
         Future.successful(user.id)
 
-      case err: Exception =>
-        Future.failed(err)
+      case UserAlreadyExists =>
+        Future.failed(new Exception("User is already exists!"))
 
       case _ =>
         Future.failed(new InternalError())

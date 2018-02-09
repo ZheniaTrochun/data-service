@@ -38,7 +38,7 @@ class UserRepository(override val driver: JdbcProfile) extends Repository[User, 
 
 
   class Users(tag: Tag) extends Table[User](tag, "USERS") with Keyed[Int] {
-    def id = column[Int]("ID", O.PrimaryKey)
+    def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
     def name = column[String]("name", O.SqlType("VARCHAR(20)"), O.Unique)
     def email = column[String]("email", O.SqlType("VARCHAR(30)"), O.Unique)
 

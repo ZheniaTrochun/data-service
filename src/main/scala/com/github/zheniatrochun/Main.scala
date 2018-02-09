@@ -22,7 +22,7 @@ object Main extends App with Config with Routes {
   protected implicit val executor: ExecutionContext = system.dispatcher
   protected val log: LoggingAdapter = Logging(system, getClass)
   protected implicit val materializer: ActorMaterializer = ActorMaterializer()
-  private implicit val timeout: Timeout = 5 seconds
+  private implicit val timeout: Timeout = 25 seconds
 
   val userActor = system.actorOf(Props(new UserActor(DatabaseConfig.forConfig("h2"))))
   val userService = new UserServiceImpl(userActor)

@@ -11,28 +11,28 @@ import spray.json._
 class BillRoutes(val billService: BillService) extends RouteUtils {
   val routes = {
     path("users") {
-      (path("create") & post) {
+      post {
         entity(as[Bill]) { bill =>
           completeWithFuture {
             billService.create(bill).toFutureJson
           }
         }
       } ~
-        (path("update") & put) {
+        put {
           entity(as[Bill]) { bill =>
             completeWithFuture {
               billService.update(bill).toFutureJson
             }
           }
         } ~
-        (path("delete") & delete) {
+        delete {
           parameters('id.as[Int]) { id =>
             completeWithFuture {
               billService.delete(id).toFutureJson
             }
           }
         } ~
-        (path("get") & get) {
+        get {
           parameters('id.as[Int]) { id =>
             completeWithFuture {
               billService.getById(id).toFutureJson

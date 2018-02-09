@@ -13,28 +13,28 @@ class UserRoutes(val userService: UserService) extends RouteUtils {
 
   val routes = {
     path("users") {
-      (path("create") & post) {
+      post {
         entity(as[User]) { user =>
           completeWithFuture {
             userService.create(user).toFutureJson
           }
         }
       } ~
-      (path("update") & put) {
+      put {
         entity(as[User]) { user =>
           completeWithFuture {
             userService.update(user).toFutureJson
           }
         }
       } ~
-      (path("delete") & delete) {
+      delete {
         parameters('id.as[Int]) { id =>
           completeWithFuture {
             userService.delete(id).toFutureJson
           }
         }
       } ~
-      (path("get") & get) {
+      get {
         parameters('id.as[Int]) { id =>
           completeWithFuture {
             userService.getById(id).toFutureJson
