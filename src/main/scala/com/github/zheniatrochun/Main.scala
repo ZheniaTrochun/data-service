@@ -10,9 +10,9 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import akka.http.scaladsl.server.Directives._
 import akka.util.Timeout
-import com.github.zheniatrochun.api.UserRoutes
-import com.github.zheniatrochun.db.actors.UserActor
-import com.github.zheniatrochun.services.UserServiceImpl
+import com.github.zheniatrochun.api.{BillRoutes, UserRoutes}
+import com.github.zheniatrochun.db.actors.{BillActor, UserActor}
+import com.github.zheniatrochun.services.{BillServiceImpl, UserServiceImpl}
 import slick.basic.DatabaseConfig
 
 import scala.language.postfixOps
@@ -28,8 +28,12 @@ object Main extends App with Config with Routes {
   val userService = new UserServiceImpl(userActor)
   val userRoutes = new UserRoutes(userService)
 
+  val billActor = system.actorOf(Props(new BillActor(DatabaseConfig.forConfig("h2"))))
+  val billService = new BillServiceImpl(billActor)
+  val billRoutes = new BillRoutes(billService)
+
   Http().bindAndHandle(
-    handler = logRequestResult("log")(routes ~ userRoutes.routes),
+    handler = logRequestResult("log")(routes ~ userRoutes.routes ~ billRoutes.routes),
     interface = httpInterface,
     port = httpPort)
 }

@@ -20,6 +20,8 @@ class BillActor(val dbConfig: DatabaseConfig[JdbcProfile])
 
   val billRepository = new BillRepository(driver)
 
+  db.run { billRepository.setupSchema() }
+
   override def receive = {
     case FindBillById(id) =>
       db.run { billRepository.findOne(id) } sendResponseTo sender
@@ -40,6 +42,6 @@ class BillActor(val dbConfig: DatabaseConfig[JdbcProfile])
       db.run { billRepository.update(bill) } sendResponseTo sender
 
     case _ =>
-      sender() ! new UnsupportedOperationException
+      sender ! new UnsupportedOperationException
   }
 }

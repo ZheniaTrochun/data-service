@@ -20,6 +20,14 @@ class BillRepository(override val driver: JdbcProfile) extends Repository[Bill, 
   override def tableQuery = TableQuery[Bills]
 
 
+  def setupSchema(): FixedSqlAction[Unit, NoStream, Effect.Schema] = {
+    tableQuery.schema.create
+  }
+
+  def dropSchema(): FixedSqlAction[Unit, NoStream, Effect.Schema] = {
+    tableQuery.schema.drop
+  }
+
   def findAllByUser(user: Int): FixedSqlStreamingAction[Seq[Bill], Bill, Effect.Read] = {
     tableQuery.filter(_.user === user).result
   }
