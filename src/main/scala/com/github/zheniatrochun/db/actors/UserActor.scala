@@ -37,15 +37,17 @@ class UserActor(val dbConfig: DatabaseConfig[JdbcProfile])
 
     case CreateUser(user) =>
       pipe {
-        db.run {
-          userRepository.findOneByEmail(user.email)
-        } flatMap  {
+        db.run(userRepository.findOneByEmail(user.email)) flatMap  {
           case Some(_) =>
             Future.successful(UserAlreadyExists)
 
           case None =>
-            db.run {
-              userRepository.save(user)
+            db.run(userRepository.findOneByName(user.name)) flatMap {
+              case Some(_) =>
+                Future.successful(UserAlreadyExists)
+
+              case None =>
+                db.run(userRepository.save(user))
             }
         }
       } to sender

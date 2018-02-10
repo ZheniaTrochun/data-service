@@ -14,7 +14,7 @@ class BillRoutes(val billService: BillService) extends RouteUtils {
       post {
         entity(as[Bill]) { bill =>
           completeWithFuture {
-            billService.create(bill).toFutureJson
+            billService.create(bill).toFutureJson(idWriter)
           }
         }
       } ~
@@ -28,7 +28,7 @@ class BillRoutes(val billService: BillService) extends RouteUtils {
         delete {
           parameters('id.as[Int]) { id =>
             completeWithFuture {
-              billService.delete(id).toFutureJson
+              billService.delete(id).toFutureJson(idWriter)
             }
           }
         } ~
