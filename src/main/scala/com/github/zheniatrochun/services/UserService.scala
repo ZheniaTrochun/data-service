@@ -32,10 +32,11 @@ class UserServiceImpl(val dbActor: AskableActorRef)
   val logger = LoggerFactory.getLogger(this.getClass)
 
   override def create(user: User): Future[Option[Int]] = {
-    dbActor ? CreateUser(user) flatMap {
-      case id: Int =>
-        logger.debug(s"User creation OK, id = $id")
-        Future.successful(Some(id))
+    val res = dbActor ? CreateUser(user)
+    res flatMap {
+      case user: User =>
+        logger.debug(s"User creation OK, id = ${user.id}")
+        Future.successful(user.id)
 
       case UserAlreadyExists =>
         logger.debug(s"User creation FAILED")
