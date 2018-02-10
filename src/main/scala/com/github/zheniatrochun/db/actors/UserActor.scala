@@ -12,7 +12,6 @@ import slick.jdbc.JdbcProfile
 
 import scala.concurrent.Future
 
-// TODO use pipe pattern!!!!!!!!
 class UserActor(val dbConfig: DatabaseConfig[JdbcProfile])
                (implicit val system: ActorSystem, implicit val timeout: Timeout)
   extends Actor with ActorUtils {
@@ -28,13 +27,13 @@ class UserActor(val dbConfig: DatabaseConfig[JdbcProfile])
 
   override def receive = {
     case FindUserById(id) =>
-      db.run { userRepository.findOne(id) } sendResponseTo sender
+      pipe(db.run(userRepository.findOne(id))) to sender
 
     case FindUserByName(name) =>
-      db.run { userRepository.findOneByName(name) } sendResponseTo sender
+      pipe(db.run(userRepository.findOneByName(name))) to sender
 
     case FindUserByEmail(email) =>
-      db.run { userRepository.findOneByEmail(email) } sendResponseTo sender
+      pipe(db.run(userRepository.findOneByEmail(email))) to sender
 
     case CreateUser(user) =>
       pipe {
@@ -52,10 +51,10 @@ class UserActor(val dbConfig: DatabaseConfig[JdbcProfile])
       } to sender
 
     case DeleteUser(id) =>
-      db.run { userRepository.deleteById(id) } sendResponseTo sender
+      pipe(db.run(userRepository.deleteById(id))) to sender
 
     case UpdateUser(user) =>
-      db.run { userRepository.update(user) } sendResponseTo sender
+      pipe(db.run(userRepository.update(user))) to sender
 
     case _ =>
       sender() ! new UnsupportedOperationException("Unsupported request!")

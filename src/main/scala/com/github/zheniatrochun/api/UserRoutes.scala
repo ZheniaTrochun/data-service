@@ -16,7 +16,7 @@ class UserRoutes(val userService: UserService) extends RouteUtils {
       post {
         entity(as[User]) { user =>
           completeWithFuture {
-            userService.create(user).toFutureJson
+            userService.create(user).toFutureJson(idWriter)
           }
         }
       } ~
@@ -30,7 +30,7 @@ class UserRoutes(val userService: UserService) extends RouteUtils {
       delete {
         parameters('id.as[Int]) { id =>
           completeWithFuture {
-            userService.delete(id).toFutureJson
+            userService.delete(id).toFutureJson(idWriter)
           }
         }
       } ~

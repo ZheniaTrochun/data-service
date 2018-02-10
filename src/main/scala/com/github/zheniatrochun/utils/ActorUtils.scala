@@ -8,15 +8,5 @@ import scala.util.{Failure, Success}
 
 trait ActorUtils {
 
-  implicit class ResponseSender(f: Future[Any])(implicit val ec: ExecutionContext) {
-    def sendResponseTo(actor: ActorRef): Unit = {
-      f onComplete {
-        case Success(s) =>
-          actor ! s
 
-        case Failure(e) =>
-          actor ! ActorFailureResponse(e)
-      }
-    }
-  }
 }

@@ -2,6 +2,7 @@ package com.github.zheniatrochun.db.actors
 
 import akka.actor.{Actor, ActorSystem}
 import akka.util.Timeout
+import akka.pattern.pipe
 import com.github.zheniatrochun.models.requests._
 import com.github.zheniatrochun.db.repositories.BillRepository
 import com.github.zheniatrochun.utils.ActorUtils
@@ -24,22 +25,22 @@ class BillActor(val dbConfig: DatabaseConfig[JdbcProfile])
 
   override def receive = {
     case FindBillById(id) =>
-      db.run { billRepository.findOne(id) } sendResponseTo sender
+      pipe(db.run(billRepository.findOne(id))) to sender
 
     case FindAllBillsByUser(user) =>
-      db.run { billRepository.findAllByUser(user) } sendResponseTo sender
+      pipe(db.run(billRepository.findAllByUser(user))) to sender
 
     case FindAllBillsByUserPage(user, page) =>
-      db.run { billRepository.findAllByUserAndPage(user, page) } sendResponseTo sender
+      pipe(db.run(billRepository.findAllByUserAndPage(user, page))) to sender
 
     case CreateBill(bill) =>
-      db.run { billRepository.save(bill) } sendResponseTo sender
+      pipe(db.run(billRepository.save(bill))) to sender
 
     case DeleteBill(id) =>
-      db.run { billRepository.deleteById(id) } sendResponseTo sender
+      pipe(db.run(billRepository.deleteById(id))) to sender
 
     case UpdateBill(bill) =>
-      db.run { billRepository.update(bill) } sendResponseTo sender
+      pipe(db.run(billRepository.update(bill))) to sender
 
     case _ =>
       sender ! new UnsupportedOperationException

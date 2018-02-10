@@ -13,7 +13,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 trait RouteUtils {
 
-  implicit val idWriter: JsonWriter[Int] = IdWriter
+  private class IdWriter extends JsonWriter[Int] {
+    override def write(obj: Int): JsValue = s"""{id:$obj}""".toJson
+  }
+
+  implicit val idWriter: JsonWriter[Int] = new IdWriter()
 
   implicit class jsonFromOptionalFuture[T](f: Future[Option[T]]) {
     def toFutureJson(implicit writer: JsonWriter[T]): Future[Option[JsValue]] = {
@@ -43,9 +47,5 @@ trait RouteUtils {
 
   private def buildEntity(obj: JsValue): ResponseEntity = {
     HttpEntity(obj.toString).withContentType(ContentType(MediaTypes.`application/json`))
-  }
-
-  private object IdWriter extends JsonWriter[Int] {
-    override def write(obj: Int): JsValue = s"""{id:$obj}""".toJson
   }
 }
