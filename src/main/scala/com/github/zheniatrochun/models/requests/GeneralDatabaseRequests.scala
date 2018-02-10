@@ -1,0 +1,6 @@
+package com.github.zheniatrochun.models.requests
+
+sealed trait GeneralDatabaseRequests
+
+case object CreateSchema extends GeneralDatabaseRequests
+case object DropSchema extends GeneralDatabaseRequests

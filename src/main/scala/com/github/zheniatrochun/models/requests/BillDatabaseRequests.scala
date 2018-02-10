@@ -2,7 +2,7 @@ package com.github.zheniatrochun.models.requests
 
 import com.github.zheniatrochun.models.Bill
 
-trait BillDatabaseRequest
+sealed trait BillDatabaseRequest
 
 case class FindBillById(id: Int) extends BillDatabaseRequest
 case class FindAllBillsByUser(user: Int) extends BillDatabaseRequest

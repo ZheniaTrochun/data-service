@@ -6,6 +6,7 @@ import akka.pattern.{AskableActorRef, ask}
 import akka.util.Timeout
 import com.github.zheniatrochun.exceptions.UserAlreadyExists
 import com.github.zheniatrochun.models.requests._
+import org.slf4j.LoggerFactory
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -24,22 +25,24 @@ trait UserService {
   def getByEmail(email: String): Future[Option[User]]
 }
 
-class UserServiceImpl(val dbActor: AskableActorRef)(implicit val timeout: Timeout)
+class UserServiceImpl(val dbActor: AskableActorRef)
+                     (implicit val timeout: Timeout)
   extends UserService {
 
+  val logger = LoggerFactory.getLogger(this.getClass)
+
   override def create(user: User): Future[Option[Int]] = {
-    val ask = dbActor ? CreateUser(user)
-    ask flatMap {
+    dbActor ? CreateUser(user) flatMap {
       case id: Int =>
+        logger.debug(s"User creation OK, id = $id")
         Future.successful(Some(id))
 
-      case user: User =>
-        Future.successful(user.id)
-
       case UserAlreadyExists =>
+        logger.debug(s"User creation FAILED")
         Future.failed(new Exception("User is already exists!"))
 
       case _ =>
+        logger.error(s"Error in actor model")
         Future.failed(new InternalError())
     }
   }
@@ -47,12 +50,11 @@ class UserServiceImpl(val dbActor: AskableActorRef)(implicit val timeout: Timeou
   override def update(user: User): Future[Option[User]] = {
     dbActor ? UpdateUser(user) flatMap {
       case user: User =>
+        logger.debug(s"User updation OK, id = ${user.id}")
         Future.successful(Some(user))
 
-      case err: Exception =>
-        Future.failed(err)
-
       case _ =>
+        logger.error(s"Error in actor model")
         Future.failed(new InternalError())
     }
   }
@@ -60,9 +62,11 @@ class UserServiceImpl(val dbActor: AskableActorRef)(implicit val timeout: Timeou
   override def delete(id: Int): Future[Option[Int]] = {
     dbActor ? DeleteUser(id) flatMap {
       case res: Int =>
+        logger.debug(s"User deletion OK, id = $id")
         Future.successful(Some(res))
 
       case _ =>
+        logger.error(s"Error in actor model")
         Future.failed(new InternalError())
     }
   }
@@ -70,12 +74,15 @@ class UserServiceImpl(val dbActor: AskableActorRef)(implicit val timeout: Timeou
   override def getById(id: Int): Future[Option[User]] = {
     dbActor ? FindUserById(id) flatMap {
       case Some(user: User) =>
+        logger.debug(s"User getting by id OK, user = $user")
         Future.successful(Some(user))
 
       case None =>
+        logger.debug(s"User getting by id FAILED")
         Future.successful(None)
 
       case _ =>
+        logger.error(s"Error in actor model")
         Future.failed(new InternalError())
     }
   }
@@ -83,12 +90,15 @@ class UserServiceImpl(val dbActor: AskableActorRef)(implicit val timeout: Timeou
   override def getByName(name: String): Future[Option[User]] = {
     dbActor ? FindUserByName(name) flatMap {
       case Some(user: User) =>
+        logger.debug(s"User getting by name OK, user = $user")
         Future.successful(Some(user))
 
       case None =>
+        logger.debug(s"User getting by name FAILED")
         Future.successful(None)
 
       case _ =>
+        logger.error(s"Error in actor model")
         Future.failed(new InternalError())
     }
   }
@@ -96,12 +106,15 @@ class UserServiceImpl(val dbActor: AskableActorRef)(implicit val timeout: Timeou
   override def getByEmail(email: String): Future[Option[User]] = {
     dbActor ? FindUserByEmail(email) flatMap {
       case Some(user: User) =>
+        logger.debug(s"User getting by email OK, user = $user")
         Future.successful(Some(user))
 
       case None =>
+        logger.debug(s"User getting by email FAILED")
         Future.successful(None)
 
       case _ =>
+        logger.error(s"Error in actor model")
         Future.failed(new InternalError())
     }
   }

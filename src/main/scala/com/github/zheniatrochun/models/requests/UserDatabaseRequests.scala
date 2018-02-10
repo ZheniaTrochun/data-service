@@ -2,7 +2,7 @@ package com.github.zheniatrochun.models.requests
 
 import com.github.zheniatrochun.models.User
 
-trait UserDatabaseRequest
+sealed trait UserDatabaseRequest
 
 case class FindUserById(id: Int) extends UserDatabaseRequest
 case class FindUserByName(name: String) extends UserDatabaseRequest

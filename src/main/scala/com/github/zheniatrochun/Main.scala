@@ -12,6 +12,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.util.Timeout
 import com.github.zheniatrochun.api.{BillRoutes, UserRoutes}
 import com.github.zheniatrochun.db.actors.{BillActor, UserActor}
+import com.github.zheniatrochun.models.requests.CreateSchema
 import com.github.zheniatrochun.services.{BillServiceImpl, UserServiceImpl}
 import slick.basic.DatabaseConfig
 
@@ -27,10 +28,12 @@ object Main extends App with Config with Routes {
   val userActor = system.actorOf(Props(new UserActor(DatabaseConfig.forConfig("h2"))))
   val userService = new UserServiceImpl(userActor)
   val userRoutes = new UserRoutes(userService)
+  userActor ! CreateSchema
 
   val billActor = system.actorOf(Props(new BillActor(DatabaseConfig.forConfig("h2"))))
   val billService = new BillServiceImpl(billActor)
   val billRoutes = new BillRoutes(billService)
+  billActor ! CreateSchema
 
   Http().bindAndHandle(
     handler = logRequestResult("log")(routes ~ userRoutes.routes ~ billRoutes.routes),

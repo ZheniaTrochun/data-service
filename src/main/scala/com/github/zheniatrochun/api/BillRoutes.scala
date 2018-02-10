@@ -9,6 +9,7 @@ import spray.json._
 
 
 class BillRoutes(val billService: BillService) extends RouteUtils {
+
   val routes = {
     path("users") {
       post {
