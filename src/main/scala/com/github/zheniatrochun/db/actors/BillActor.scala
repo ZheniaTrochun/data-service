@@ -5,7 +5,6 @@ import akka.util.Timeout
 import akka.pattern.pipe
 import com.github.zheniatrochun.models.requests._
 import com.github.zheniatrochun.db.repositories.BillRepository
-import com.github.zheniatrochun.utils.ActorUtils
 import org.slf4j.LoggerFactory
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -15,7 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class BillActor(val dbConfig: DatabaseConfig[JdbcProfile])
                (implicit val system: ActorSystem, implicit val timeout: Timeout)
-  extends Actor with ActorUtils {
+  extends Actor {
 
   val logger = LoggerFactory.getLogger(this.getClass)
 

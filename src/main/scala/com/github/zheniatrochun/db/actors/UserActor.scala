@@ -6,7 +6,6 @@ import akka.util.Timeout
 import com.github.zheniatrochun.db.repositories.UserRepository
 import com.github.zheniatrochun.models.requests._
 import com.github.zheniatrochun.exceptions.UserAlreadyExists
-import com.github.zheniatrochun.utils.ActorUtils
 import org.slf4j.LoggerFactory
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -15,7 +14,7 @@ import scala.concurrent.Future
 
 class UserActor(val dbConfig: DatabaseConfig[JdbcProfile])
                (implicit val system: ActorSystem, implicit val timeout: Timeout)
-  extends Actor with ActorUtils {
+  extends Actor {
 
   import context.dispatcher
 
