@@ -1,0 +1,1 @@
+web: target/universal/stage/bin/data-service -Dhttp.port=${PORT}

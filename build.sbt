@@ -32,5 +32,11 @@ libraryDependencies ++= {
   )
 }
 
+enablePlugins(UniversalPlugin)
+enablePlugins(DockerPlugin)
+
+// Needed for Heroku deployment, can be removed
+enablePlugins(JavaAppPackaging)
+
 Revolver.settings
 resolvers += "typesave" at "http://repo.typesafe.com/typesafe/releases"
