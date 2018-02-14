@@ -12,7 +12,7 @@ import spray.json._
 class UserRoutes(val userService: UserService) extends RouteUtils {
 
   val routes = {
-    path("users") {
+    pathPrefix("users") {
       post {
         entity(as[User]) { user =>
           completeWithFuture {
@@ -35,6 +35,11 @@ class UserRoutes(val userService: UserService) extends RouteUtils {
         }
       } ~
       get {
+        path("all") {
+          completeWithFuture {
+            userService.getAll().toFutureJson
+          }
+        } ~
         parameters('id.as[Int]) { id =>
           completeWithFuture {
             userService.getById(id).toFutureJson

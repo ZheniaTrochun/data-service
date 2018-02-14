@@ -38,6 +38,10 @@ class UserActor(val dbConfig: DatabaseConfig[JdbcProfile])
       logger.debug(s"Received request: FindUserByEmail($email)")
       pipe(db.run(userRepository.findOneByEmail(email))) to sender
 
+    case FindAllUsers =>
+      logger.debug("Received request: FindAllUsers")
+      pipe(db.run(userRepository.findAll())) to sender
+
     case CreateUser(user) =>
       logger.debug(s"Received request: CreateUser($user)")
       pipe {

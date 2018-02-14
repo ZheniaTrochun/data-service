@@ -7,6 +7,7 @@ sealed trait UserDatabaseRequest
 case class FindUserById(id: Int) extends UserDatabaseRequest
 case class FindUserByName(name: String) extends UserDatabaseRequest
 case class FindUserByEmail(email: String) extends UserDatabaseRequest
+case object FindAllUsers extends UserDatabaseRequest
 
 case class DeleteUser(id: Int) extends UserDatabaseRequest
 

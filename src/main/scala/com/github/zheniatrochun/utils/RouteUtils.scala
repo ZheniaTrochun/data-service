@@ -25,6 +25,12 @@ trait RouteUtils {
     }
   }
 
+  implicit class jsonFromFuture[T](f: Future[T]) {
+    def toFutureJson(implicit writer: JsonWriter[T]): Future[Option[JsValue]] = {
+      f.map(res => Some(res.toJson))
+    }
+  }
+
   def completeWithFuture(f: => Future[Option[JsValue]]): Route = {
     onComplete(f) {
 

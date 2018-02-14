@@ -23,6 +23,8 @@ trait UserService {
   def getByName(name: String): Future[Option[User]]
 
   def getByEmail(email: String): Future[Option[User]]
+
+  def getAll(): Future[List[User]]
 }
 
 class UserServiceImpl(val dbActor: AskableActorRef)
@@ -112,6 +114,22 @@ class UserServiceImpl(val dbActor: AskableActorRef)
       case None =>
         logger.debug(s"User getting by email FAILED")
         Future.successful(None)
+
+      case _ =>
+        logger.error(s"Error in actor model")
+        Future.failed(new InternalError())
+    }
+  }
+
+  override def getAll(): Future[List[User]] = {
+    dbActor ? FindAllUsers flatMap {
+      case Seq() =>
+        logger.debug("No users already exists")
+        Future.successful(Nil)
+
+      case res: Seq[User] =>
+        logger.debug(s"User get all - OK, length = ${res.length}")
+        Future.successful(res.toList)
 
       case _ =>
         logger.error(s"Error in actor model")
