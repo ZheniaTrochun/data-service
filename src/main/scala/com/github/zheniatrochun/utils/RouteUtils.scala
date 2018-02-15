@@ -46,7 +46,7 @@ trait RouteUtils {
         }
 
       case Failure(err) =>
-        val response = HttpResponse(StatusCodes.InternalServerError)
+        val response = HttpResponse(StatusCodes.InternalServerError, entity = HttpEntity(err.getMessage))
         complete(response)
     }
   }
