@@ -1,8 +1,8 @@
 package com.github.zheniatrochun.services
 
-import akka.actor.{ActorRef, ActorSystem}
 import com.github.zheniatrochun.models.User
-import akka.pattern.{AskableActorRef, ask}
+import com.github.zheniatrochun.validators.UserValidator._
+import akka.pattern.AskableActorRef
 import akka.util.Timeout
 import com.github.zheniatrochun.exceptions.UserAlreadyExists
 import com.github.zheniatrochun.models.requests._
@@ -34,18 +34,26 @@ class UserServiceImpl(val dbActor: AskableActorRef)
   val logger = LoggerFactory.getLogger(this.getClass)
 
   override def create(user: User): Future[Option[Int]] = {
-    dbActor ? CreateUser(user) flatMap {
-      case user: User =>
-        logger.debug(s"User creation OK, id = ${user.id}")
-        Future.successful(user.id)
 
-      case UserAlreadyExists =>
-        logger.debug(s"User creation FAILED")
-        Future.failed(new Exception("User is already exists!"))
+    // 1 - check fields validation
+    if (!user.isValid) {
+    // None -> if something not valid
+      Future.successful(None)
+    } else {
 
-      case _ =>
-        logger.error(s"Error in actor model")
-        Future.failed(new InternalError())
+      dbActor ? CreateUser(user) flatMap {
+        case user: User =>
+          logger.debug(s"User creation OK, id = ${user.id}")
+          Future.successful(user.id)
+
+        case UserAlreadyExists =>
+          logger.debug(s"User creation FAILED")
+          Future.failed(new Exception("User is already exists!"))
+
+        case _ =>
+          logger.error(s"Error in actor model")
+          Future.failed(new InternalError())
+      }
     }
   }
 

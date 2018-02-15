@@ -57,6 +57,7 @@ class UserActor(val dbConfig: DatabaseConfig[JdbcProfile])
                 Future.successful(UserAlreadyExists)
 
               case None =>
+                logger.debug("Creating user ...")
                 db.run(userRepository.save(user))
             }
         }
