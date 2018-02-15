@@ -1,5 +1,6 @@
 package com.github.zheniatrochun.api
 
+import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Directives._
 import com.github.zheniatrochun.models.User
 import com.github.zheniatrochun.services.UserService
@@ -54,6 +55,12 @@ class UserRoutes(val userService: UserService) extends RouteUtils {
           completeWithFuture {
             userService.getByEmail(email).toFutureJson
           }
+        }
+      } ~
+      pathPrefix("admin") {
+        path("create-db") {
+          userService.createDB()
+          complete(HttpResponse(StatusCodes.OK))
         }
       }
     }

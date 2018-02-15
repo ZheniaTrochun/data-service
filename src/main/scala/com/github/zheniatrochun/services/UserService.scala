@@ -1,8 +1,9 @@
 package com.github.zheniatrochun.services
 
+import akka.actor.ActorRef
 import com.github.zheniatrochun.models.User
 import com.github.zheniatrochun.validators.UserValidator._
-import akka.pattern.AskableActorRef
+import akka.pattern.ask
 import akka.util.Timeout
 import com.github.zheniatrochun.exceptions.UserAlreadyExists
 import com.github.zheniatrochun.models.requests._
@@ -12,6 +13,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait UserService {
+  def createDB(): Unit
+
   def create(user: User): Future[Option[Int]]
 
   def update(user: User): Future[Option[User]]
@@ -27,7 +30,7 @@ trait UserService {
   def getAll(): Future[List[User]]
 }
 
-class UserServiceImpl(val dbActor: AskableActorRef)
+class UserServiceImpl(val dbActor: ActorRef)
                      (implicit val timeout: Timeout)
   extends UserService {
 
@@ -143,5 +146,9 @@ class UserServiceImpl(val dbActor: AskableActorRef)
         logger.error(s"Error in actor model")
         Future.failed(new InternalError())
     }
+  }
+
+  override def createDB(): Unit = {
+    dbActor ! CreateSchema
   }
 }

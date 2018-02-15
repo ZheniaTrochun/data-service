@@ -25,10 +25,9 @@ object Main extends App with Config with Routes {
   protected implicit val materializer: ActorMaterializer = ActorMaterializer()
   private implicit val timeout: Timeout = 25 seconds
 
-  val userActor = system.actorOf(Props(new UserActor(DatabaseConfig.forConfig("h2"))))
+  val userActor = system.actorOf(Props(new UserActor(DatabaseConfig.forConfig("postgres"))))
   val userService = new UserServiceImpl(userActor)
   val userRoutes = new UserRoutes(userService)
-  userActor ! CreateSchema
 
   val billActor = system.actorOf(Props(new BillActor(DatabaseConfig.forConfig("h2"))))
   val billService = new BillServiceImpl(billActor)
