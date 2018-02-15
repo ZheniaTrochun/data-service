@@ -39,7 +39,8 @@ class UserServiceImpl(val dbActor: ActorRef)
   override def create(user: User): Future[Option[Int]] = {
 
     // 1 - check fields validation
-    if (!user.isValid) {
+    val valid = user.isValid
+    if (!valid) {
     // None -> if something not valid
       Future.successful(None)
     } else {
