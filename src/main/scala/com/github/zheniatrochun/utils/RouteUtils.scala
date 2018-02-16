@@ -3,7 +3,6 @@ package com.github.zheniatrochun.utils
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives.{complete, onComplete}
 import akka.http.scaladsl.server.Route
-import com.github.zheniatrochun.models.User
 import com.github.zheniatrochun.models.json.JsonProtocol._
 import spray.json._
 

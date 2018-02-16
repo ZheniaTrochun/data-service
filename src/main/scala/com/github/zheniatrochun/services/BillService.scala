@@ -3,7 +3,7 @@ package com.github.zheniatrochun.services
 import akka.actor.ActorRef
 import com.github.zheniatrochun.models.requests._
 import com.github.zheniatrochun.models.Bill
-import akka.pattern.{AskableActorRef, ask}
+import akka.pattern.ask
 import akka.util.Timeout
 import org.slf4j.LoggerFactory
 
@@ -20,7 +20,7 @@ trait BillService {
   def getById(id: Int): Future[Option[Bill]]
 }
 
-class BillServiceImpl(val dbActor: AskableActorRef)
+class BillServiceImpl(val dbActor: ActorRef)
                      (implicit val timeout: Timeout)
   extends BillService {
 

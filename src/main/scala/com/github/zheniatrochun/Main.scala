@@ -12,7 +12,6 @@ import akka.http.scaladsl.server.Directives._
 import akka.util.Timeout
 import com.github.zheniatrochun.api.{AdminRoutes, BillRoutes, UserRoutes}
 import com.github.zheniatrochun.db.actors.{BillActor, UserActor}
-import com.github.zheniatrochun.models.requests.CreateSchema
 import com.github.zheniatrochun.services.{AdminServiceImpl, BillServiceImpl, UserServiceImpl}
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile

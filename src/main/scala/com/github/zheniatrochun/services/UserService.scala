@@ -9,7 +9,7 @@ import com.github.zheniatrochun.exceptions.UserAlreadyExists
 import com.github.zheniatrochun.models.requests._
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait UserService {
