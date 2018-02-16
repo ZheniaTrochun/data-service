@@ -56,12 +56,6 @@ class UserRoutes(val userService: UserService) extends RouteUtils {
             userService.getByEmail(email).toFutureJson
           }
         }
-      } ~
-      pathPrefix("admin") {
-        path("create-db") {
-          userService.createDB()
-          complete(HttpResponse(StatusCodes.OK))
-        }
       }
     }
   }
