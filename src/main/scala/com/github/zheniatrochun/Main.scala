@@ -10,11 +10,12 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import akka.http.scaladsl.server.Directives._
 import akka.util.Timeout
-import com.github.zheniatrochun.api.{BillRoutes, UserRoutes}
+import com.github.zheniatrochun.api.{AdminRoutes, BillRoutes, UserRoutes}
 import com.github.zheniatrochun.db.actors.{BillActor, UserActor}
 import com.github.zheniatrochun.models.requests.CreateSchema
-import com.github.zheniatrochun.services.{BillServiceImpl, UserServiceImpl}
+import com.github.zheniatrochun.services.{AdminServiceImpl, BillServiceImpl, UserServiceImpl}
 import slick.basic.DatabaseConfig
+import slick.jdbc.JdbcProfile
 
 import scala.language.postfixOps
 
@@ -25,17 +26,21 @@ object Main extends App with Config with Routes {
   protected implicit val materializer: ActorMaterializer = ActorMaterializer()
   private implicit val timeout: Timeout = 25 seconds
 
-  val userActor = system.actorOf(Props(new UserActor(DatabaseConfig.forConfig("postgres"))))
+  private val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("postgres")
+
+  val userActor = system.actorOf(Props(new UserActor(dbConfig)))
   val userService = new UserServiceImpl(userActor)
   val userRoutes = new UserRoutes(userService)
 
-  val billActor = system.actorOf(Props(new BillActor(DatabaseConfig.forConfig("h2"))))
+  val billActor = system.actorOf(Props(new BillActor(dbConfig)))
   val billService = new BillServiceImpl(billActor)
   val billRoutes = new BillRoutes(billService)
-  billActor ! CreateSchema
+
+  val adminService = new AdminServiceImpl(userActor, billActor)
+  val adminRoutes = new AdminRoutes(adminService)
 
   Http().bindAndHandle(
-    handler = logRequestResult("log")(routes ~ userRoutes.routes ~ billRoutes.routes),
+    handler = logRequestResult("log")(routes ~ userRoutes.routes ~ billRoutes.routes ~ adminRoutes.routes),
     interface = httpInterface,
     port = httpPort)
 }
