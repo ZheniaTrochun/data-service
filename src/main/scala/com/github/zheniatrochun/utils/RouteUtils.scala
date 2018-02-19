@@ -1,7 +1,7 @@
 package com.github.zheniatrochun.utils
 
 import akka.http.scaladsl.model._
-import akka.http.scaladsl.server.Directives.{complete, onComplete}
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.github.zheniatrochun.models.json.JsonProtocol._
 import spray.json._
@@ -47,6 +47,17 @@ trait RouteUtils {
       case Failure(err) =>
         val response = HttpResponse(StatusCodes.InternalServerError, entity = HttpEntity(err.getMessage))
         complete(response)
+    }
+  }
+
+  def withSertificate(action: => Route): Route = {
+    headerValueByName("Sertificate") { sertificate =>
+
+      if (sertificate.isEmpty) {
+        reject()
+      } else {
+        action
+      }
     }
   }
 

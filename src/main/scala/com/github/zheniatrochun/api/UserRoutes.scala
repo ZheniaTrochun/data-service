@@ -36,8 +36,10 @@ class UserRoutes(val userService: UserService) extends RouteUtils {
       } ~
       get {
         path("all") {
-          completeWithFuture {
-            userService.getAll().toFutureJson
+          withSertificate {
+            completeWithFuture {
+              userService.getAll().toFutureJson
+            }
           }
         } ~
         parameters('id.as[Int]) { id =>
