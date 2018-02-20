@@ -9,7 +9,7 @@ import spray.json._
 
 
 class BillRoutes(val billService: BillService)
-                (implicit val configs: Map[String, String])
+                (implicit val apiConfig: Map[String, String])
   extends RouteUtils {
 
   val routes = {

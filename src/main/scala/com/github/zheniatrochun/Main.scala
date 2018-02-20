@@ -6,7 +6,7 @@ import akka.stream.ActorMaterializer
 import akka.actor.{ActorSystem, Props}
 import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.Http
-import com.github.zheniatrochun.utils.Config
+import com.github.zheniatrochun.utils.{Config, InitConfig}
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -28,11 +28,9 @@ object Main extends App with Config with Routes {
   protected implicit val materializer: ActorMaterializer = ActorMaterializer()
   private implicit val timeout: Timeout = 25 seconds
 
-  val redisClient = new RedisClient(new URI(config.getString("redis.url")))
-  redisClient.set("Sertificate", "123")
-  implicit val configs = Map("Sertificate" -> redisClient.get("Sertificate").getOrElse(""))
-
   private val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("postgres")
+
+  implicit val apiConfig: Map[String, String] = InitConfig.cacheInitialConfigs()
 
   val userActor = system.actorOf(Props(new UserActor(dbConfig)))
   val userService = new UserServiceImpl(userActor)
