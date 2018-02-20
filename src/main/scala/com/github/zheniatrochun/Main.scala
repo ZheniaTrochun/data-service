@@ -32,7 +32,7 @@ object Main extends App with Config with Routes {
   redisClient.set("Sertificate", "123")
   implicit val configs = Map("Sertificate" -> redisClient.get("Sertificate").getOrElse(""))
 
-  private val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("h2")
+  private val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("postgres")
 
   val userActor = system.actorOf(Props(new UserActor(dbConfig)))
   val userService = new UserServiceImpl(userActor)
