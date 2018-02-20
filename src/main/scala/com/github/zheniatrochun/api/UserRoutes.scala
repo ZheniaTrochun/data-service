@@ -9,7 +9,9 @@ import spray.json._
 
 
 
-class UserRoutes(val userService: UserService) extends RouteUtils {
+class UserRoutes(val userService: UserService)
+                (implicit val configs: Map[String, String])
+  extends RouteUtils {
 
   val routes = {
     pathPrefix("users") {

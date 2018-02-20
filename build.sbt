@@ -10,7 +10,7 @@ scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
 libraryDependencies ++= {
   val akkaStreamVersion = "10.0.9"
-  val akkaVersion = "2.4.17"
+  val akkaVersion = "2.4.19"
   val slickV = "3.2.0"
 
   Seq(
@@ -24,6 +24,7 @@ libraryDependencies ++= {
     "com.byteslounge"             %% "slick-repo"                           % "1.4.3",
     "org.postgresql"               % "postgresql"                           % "42.2.1",
     "com.h2database"               % "h2"                                   % "1.3.175",
+    "net.debasishg"               %% "redisclient"                          % "3.5",
     "joda-time"                    % "joda-time"                            % "2.9.9",
     "org.joda"                     % "joda-convert"                         % "1.8.1",
     "com.typesafe.scala-logging"  %% "scala-logging"                        % "3.1.0",

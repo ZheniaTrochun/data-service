@@ -1,5 +1,7 @@
 package com.github.zheniatrochun
 
+import java.net.URI
+
 import akka.stream.ActorMaterializer
 import akka.actor.{ActorSystem, Props}
 import akka.event.{Logging, LoggingAdapter}
@@ -13,6 +15,7 @@ import akka.util.Timeout
 import com.github.zheniatrochun.api.{AdminRoutes, BillRoutes, UserRoutes}
 import com.github.zheniatrochun.db.actors.{BillActor, UserActor}
 import com.github.zheniatrochun.services.{AdminServiceImpl, BillServiceImpl, UserServiceImpl}
+import com.redis.RedisClient
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
@@ -25,7 +28,11 @@ object Main extends App with Config with Routes {
   protected implicit val materializer: ActorMaterializer = ActorMaterializer()
   private implicit val timeout: Timeout = 25 seconds
 
-  private val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("postgres")
+  val redisClient = new RedisClient(new URI(config.getString("redis.url")))
+  redisClient.set("Sertificate", "123")
+  implicit val configs = Map("Sertificate" -> redisClient.get("Sertificate").getOrElse(""))
+
+  private val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("h2")
 
   val userActor = system.actorOf(Props(new UserActor(dbConfig)))
   val userService = new UserServiceImpl(userActor)

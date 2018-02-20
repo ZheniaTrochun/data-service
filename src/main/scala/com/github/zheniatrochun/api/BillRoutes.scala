@@ -8,7 +8,9 @@ import com.github.zheniatrochun.models.json.JsonProtocol._
 import spray.json._
 
 
-class BillRoutes(val billService: BillService) extends RouteUtils {
+class BillRoutes(val billService: BillService)
+                (implicit val configs: Map[String, String])
+  extends RouteUtils {
 
   val routes = {
     path("users") {

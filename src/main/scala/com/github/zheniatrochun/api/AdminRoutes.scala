@@ -5,7 +5,9 @@ import com.github.zheniatrochun.services.AdminService
 import com.github.zheniatrochun.utils.RouteUtils
 
 
-class AdminRoutes(val adminService: AdminService) extends RouteUtils {
+class AdminRoutes(val adminService: AdminService)
+                 (implicit val configs: Map[String, String])
+  extends RouteUtils {
 
   val routes = {
     pathPrefix("admin") {
