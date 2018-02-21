@@ -8,7 +8,7 @@ object InitConfig extends Config {
   private val redisClient = new RedisClient(new URI(config.getString("redis.url")))
 
   def cacheInitialConfigs(): Map[String, String] = {
-    redisClient.hmget("data-service-config")
+    redisClient.hmget[String, String]("data-service-config")
       .getOrElse(Map.empty[String, String])
   }
 
