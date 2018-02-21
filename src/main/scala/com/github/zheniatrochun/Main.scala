@@ -30,6 +30,8 @@ object Main extends App with Config with Routes {
 
   private val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("postgres")
 
+  InitConfig.createDummyConfig()
+
   implicit val apiConfig: Map[String, String] = InitConfig.cacheInitialConfigs()
 
   val userActor = system.actorOf(Props(new UserActor(dbConfig)))
