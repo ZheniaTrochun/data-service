@@ -8,12 +8,26 @@ object InitConfig extends Config {
   private val redisClient = new RedisClient(new URI(config.getString("redis.url")))
 
   def cacheInitialConfigs(): Map[String, String] = {
-    redisClient.hmget[String, String]("data-service-config")
+    if (!redisClient.connected)
+      redisClient.connect
+
+    val res = redisClient.hmget[String, String]("data-service-config")
       .getOrElse(Map.empty[String, String])
+
+    redisClient.disconnect
+
+    res
   }
 
   def createDummyConfig(): Unit = {
+    if (!redisClient.connected)
+      redisClient.connect
+
     val conf = Map("Sertificate" -> "123")
-    redisClient.hmset("data-service-config", conf)
+    val res = redisClient.hmset("data-service-config", conf)
+
+    redisClient.disconnect
+
+    res
   }
 }
