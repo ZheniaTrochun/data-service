@@ -11,7 +11,7 @@ object InitConfig extends Config {
     if (!redisClient.connected)
       redisClient.connect
 
-    val res = redisClient.hmget[String, String]("data-service-config")
+    val res = redisClient.hmget[String, String]("data-service-config", "*")
       .getOrElse(Map.empty[String, String])
 
     redisClient.disconnect
@@ -24,10 +24,8 @@ object InitConfig extends Config {
       redisClient.connect
 
     val conf = Map("Sertificate" -> "123")
-    val res = redisClient.hmset("data-service-config", conf)
+    redisClient.hmset("data-service-config", conf)
 
     redisClient.disconnect
-
-    res
   }
 }
