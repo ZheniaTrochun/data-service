@@ -10,9 +10,7 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait RouteUtils {
-
-  val apiConfig: Map[String, String]
+trait RouteUtils extends AppConfig {
 
   private class IdWriter extends JsonWriter[Int] {
     override def write(obj: Int): JsValue = s"""{id:$obj}""".toJson
@@ -55,7 +53,7 @@ trait RouteUtils {
   def withSertificate(action: => Route): Route = {
     headerValueByName("Sertificate") { sertificate =>
 
-      if (sertificate.isEmpty || sertificate != apiConfig("Sertificate")) {
+      if (sertificate.isEmpty || sertificate != getString("Sertificate")) {
         reject()
       } else {
         action

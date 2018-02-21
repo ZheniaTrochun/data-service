@@ -10,7 +10,6 @@ import spray.json._
 
 
 class UserRoutes(val userService: UserService)
-                (implicit val apiConfig: Map[String, String])
   extends RouteUtils {
 
   val routes = {

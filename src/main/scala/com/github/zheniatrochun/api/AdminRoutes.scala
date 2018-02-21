@@ -6,7 +6,6 @@ import com.github.zheniatrochun.utils.{InitConfig, RouteUtils}
 
 
 class AdminRoutes(val adminService: AdminService)
-                 (implicit val apiConfig: Map[String, String])
   extends RouteUtils {
 
   val routes = {
