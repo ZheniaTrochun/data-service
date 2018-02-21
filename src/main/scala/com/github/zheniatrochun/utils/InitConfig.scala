@@ -14,7 +14,7 @@ object InitConfig extends Config {
 //    if (!redisClient.connected)
 //      redisClient.connect
 
-    val res = redisClient.hmget[String, String]("data-service-config", "*")
+    val res = redisClient.hgetall1[String, String]("data-service-config")
       .getOrElse(Map.empty[String, String])
 
     res.foreach(p => logger.info(s"TEST CONFIG MAP - $p"))
