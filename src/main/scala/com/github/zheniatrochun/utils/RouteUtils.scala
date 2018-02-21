@@ -53,7 +53,7 @@ trait RouteUtils extends AppConfig {
   def withSertificate(action: => Route): Route = {
     headerValueByName("Sertificate") { sertificate =>
 
-      if (sertificate.isEmpty || sertificate != getString("Sertificate")) {
+      if (sertificate.isEmpty || sertificate != config.getString("Sertificate")) {
         reject()
       } else {
         action
