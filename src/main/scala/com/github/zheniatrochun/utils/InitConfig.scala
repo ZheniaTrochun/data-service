@@ -9,7 +9,7 @@ object InitConfig extends Config {
 
   def cacheInitialConfigs(): Map[String, String] = {
     redisClient.hmget("data-service-config")
-      .getOrElse(Map.empty)
+      .getOrElse(Map.empty[String, String])
   }
 
   def createDummyConfig(): Unit = {
