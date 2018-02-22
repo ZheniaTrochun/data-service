@@ -34,5 +34,5 @@ object JsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
 
 
   implicit val userFormat = jsonFormat3(User)
-  implicit val billFormat = jsonFormat5(Bill)
+  implicit val billFormat = jsonFormat6(Bill)
 }
