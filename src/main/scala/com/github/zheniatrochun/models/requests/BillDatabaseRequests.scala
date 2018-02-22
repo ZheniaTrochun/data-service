@@ -7,6 +7,7 @@ sealed trait BillDatabaseRequest
 case class FindBillById(id: Int) extends BillDatabaseRequest
 case class FindAllBillsByUser(user: Int) extends BillDatabaseRequest
 case class FindAllBillsByUserPage(user: Int, page: Int) extends BillDatabaseRequest
+case object FindAllBills extends BillDatabaseRequest
 
 case class DeleteBill(id: Int) extends BillDatabaseRequest
 

@@ -21,6 +21,8 @@ trait BillService {
   def getById(id: Int): Future[Option[Bill]]
 
   def getAllByUser(User: Int): Future[List[Bill]]
+
+  def getAll(): Future[List[Bill]]
 }
 
 class BillServiceImpl(val dbActor: ActorRef)
@@ -85,6 +87,18 @@ class BillServiceImpl(val dbActor: ActorRef)
     dbActor ? FindAllBillsByUser(user) flatMap {
       case res: Seq[Bill] =>
         logger.debug(s"Bill getting all by user($user) OK, length = ${res.length}")
+        Future.successful(res toList)
+
+      case _ =>
+        logger.error(s"Error in actor model")
+        Future.failed(new InternalError())
+    }
+  }
+
+  override def getAll() = {
+    dbActor ? FindAllBills flatMap {
+      case res: Seq[Bill] =>
+        logger.debug(s"Bill getting all OK, length = ${res.length}")
         Future.successful(res toList)
 
       case _ =>

@@ -46,6 +46,11 @@ class BillRoutes(val billService: BillService)
             completeWithFuture {
               billService.getAllByUser(user toInt).toFutureJson
             }
+          } ~
+          path("/all") {
+            completeWithFuture {
+              billService.getAll().toFutureJson
+            }
           }
         }
     }

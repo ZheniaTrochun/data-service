@@ -48,6 +48,9 @@ class BillActor(val dbConfig: DatabaseConfig[JdbcProfile])
       logger.debug(s"Received request: UpdateBill($bill)")
       pipe(db.run(billRepository.update(bill))) to sender
 
+    case FindAllBills =>
+      logger.debug(s"Received request: FindAllBills")
+      pipe(db.run(billRepository.findAll())) to sender
 
     case CreateSchema =>
       logger.info(s"Received request: CreateSchema)")
