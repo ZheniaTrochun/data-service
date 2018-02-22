@@ -18,7 +18,7 @@ import slick.jdbc.JdbcProfile
 
 import scala.language.postfixOps
 
-object Main extends App with AppConfig with Routes {
+object Main extends App with AppConfig {
   private implicit val system: ActorSystem = ActorSystem()
   protected implicit val executor: ExecutionContext = system.dispatcher
   protected val log: LoggingAdapter = Logging(system, getClass)
@@ -39,7 +39,7 @@ object Main extends App with AppConfig with Routes {
   val adminRoutes = new AdminRoutes(adminService)
 
   Http().bindAndHandle(
-    handler = logRequestResult("log")(routes ~ userRoutes.routes ~ billRoutes.routes ~ adminRoutes.routes),
+    handler = logRequestResult("log")(userRoutes.routes ~ billRoutes.routes ~ adminRoutes.routes),
     interface = httpInterface,
     port = httpPort)
 }
