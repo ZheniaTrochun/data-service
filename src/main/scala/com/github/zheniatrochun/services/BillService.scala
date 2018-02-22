@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.postfixOps
 
 trait BillService {
   def create(bill: Bill): Future[Option[Int]]
@@ -18,6 +19,8 @@ trait BillService {
   def delete(id: Int): Future[Option[Int]]
 
   def getById(id: Int): Future[Option[Bill]]
+
+  def getAllByUser(User: Int): Future[List[Bill]]
 }
 
 class BillServiceImpl(val dbActor: ActorRef)
@@ -71,6 +74,18 @@ class BillServiceImpl(val dbActor: ActorRef)
       case None =>
         logger.debug(s"Bill getting by id FAILED")
         Future.successful(None)
+
+      case _ =>
+        logger.error(s"Error in actor model")
+        Future.failed(new InternalError())
+    }
+  }
+
+  override def getAllByUser(user: Int) = {
+    dbActor ? FindAllBillsByUser(user) flatMap {
+      case res: Seq[Bill] =>
+        logger.debug(s"Bill getting all by user($user) OK, length = ${res.length}")
+        Future.successful(res toList)
 
       case _ =>
         logger.error(s"Error in actor model")

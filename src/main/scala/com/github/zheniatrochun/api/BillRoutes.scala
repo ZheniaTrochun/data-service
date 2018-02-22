@@ -7,12 +7,14 @@ import com.github.zheniatrochun.utils.RouteUtils
 import com.github.zheniatrochun.models.json.JsonProtocol._
 import spray.json._
 
+import scala.language.postfixOps
+
 
 class BillRoutes(val billService: BillService)
   extends RouteUtils {
 
   val routes = {
-    path("users") {
+    path("bills") {
       post {
         entity(as[Bill]) { bill =>
           completeWithFuture {
@@ -38,6 +40,11 @@ class BillRoutes(val billService: BillService)
           parameters('id.as[Int]) { id =>
             completeWithFuture {
               billService.getById(id).toFutureJson
+            }
+          } ~
+          headerValueByName("user") { user =>
+            completeWithFuture {
+              billService.getAllByUser(user toInt).toFutureJson
             }
           }
         }
