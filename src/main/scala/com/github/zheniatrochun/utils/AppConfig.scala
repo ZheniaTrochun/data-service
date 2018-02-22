@@ -12,7 +12,7 @@ trait AppConfig {
   val httpPort = httpConfig.getInt("port")
 }
 
-private class PrivateConfigs {
+class PrivateConfigs {
   private val config = ConfigFactory.load()
   private var configCache: Map[String, String] = InitConfig.cacheInitialConfigs()
 
