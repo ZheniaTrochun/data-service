@@ -23,14 +23,17 @@ class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRe
     case FindUserById(id) =>
       logger.debug(s"Received request: FindUserById($id)")
       pipe(db.run(userRepository.findOne(id))) to sender
+      context.stop(self)
 
     case FindUserByName(name) =>
       logger.debug(s"Received request: FindUserByName($name)")
       pipe(db.run(userRepository.findOneByName(name))) to sender
+      context.stop(self)
 
     case FindUserByEmail(email) =>
       logger.debug(s"Received request: FindUserByEmail($email)")
       pipe(db.run(userRepository.findOneByEmail(email))) to sender
+      context.stop(self)
 
     case FindAllUsers =>
       logger.debug("Received request: FindAllUsers")
@@ -62,23 +65,26 @@ class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRe
     case DeleteUser(id) =>
       logger.debug(s"Received request: DeleteUser($id)")
       pipe(db.run(userRepository.deleteById(id))) to sender
+      context.stop(self)
 
     case UpdateUser(user) =>
       logger.debug(s"Received request: UpdateUser($user)")
       pipe(db.run(userRepository.update(user))) to sender
-
+      context.stop(self)
 
     case CreateSchema =>
       logger.info(s"Received request: CreateSchema)")
       db.run { userRepository.setupSchema() }
+      context.stop(self)
 
     case DropSchema =>
       logger.info(s"Received request: DropSchema)")
       db.run { userRepository.dropSchema() }
-
+      context.stop(self)
 
     case _ =>
       logger.error(s"Received request of invalid type")
       sender() ! new UnsupportedOperationException("Unsupported request!")
+      context.stop(self)
   }
 }

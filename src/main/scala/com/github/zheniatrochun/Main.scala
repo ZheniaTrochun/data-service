@@ -11,8 +11,7 @@ import scala.concurrent.duration._
 import akka.http.scaladsl.server.Directives._
 import akka.util.Timeout
 import com.github.zheniatrochun.api.{AdminRoutes, BillRoutes, UserRoutes}
-import com.github.zheniatrochun.db.actors.{BillActor, DatabaseSupervisor, UserActor}
-import com.github.zheniatrochun.db.repositories.UserRepository
+import com.github.zheniatrochun.db.actors.DatabaseSupervisor
 import com.github.zheniatrochun.services.{AdminServiceImpl, BillServiceImpl, UserServiceImpl}
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -28,20 +27,15 @@ object Main extends App with AppConfig {
 
   private val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("postgres")
 
+  val dbSupervisor = system.actorOf(Props(new DatabaseSupervisor(dbConfig)))
 
-  val dbSupervisor = system.actorOf(Props(new DatabaseSupervisor(dbConfig, dbConfig)))
-
-  val userActor = system.actorOf(Props(new UserActor(dbConfig.db, new UserRepository(dbConfig.profile))))
-//  val userService = new UserServiceImpl(userActor)
   val userService = new UserServiceImpl(dbSupervisor)
   val userRoutes = new UserRoutes(userService)
 
-  val billActor = system.actorOf(Props(new BillActor(dbConfig)))
-//  val billService = new BillServiceImpl(billActor)
   val billService = new BillServiceImpl(dbSupervisor)
   val billRoutes = new BillRoutes(billService)
 
-  val adminService = new AdminServiceImpl(userActor, billActor)
+  val adminService = new AdminServiceImpl(dbConfig)
   val adminRoutes = new AdminRoutes(adminService)
 
   Http().bindAndHandle(

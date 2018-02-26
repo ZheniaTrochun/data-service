@@ -3,7 +3,7 @@ package com.github.zheniatrochun.db.actors
 import akka.actor.{Actor, ActorSystem, Props}
 import akka.pattern.{ask, pipe}
 import akka.util.Timeout
-import com.github.zheniatrochun.db.repositories.UserRepository
+import com.github.zheniatrochun.db.repositories.{BillRepository, UserRepository}
 import com.github.zheniatrochun.models.requests.{BillDatabaseRequest, UserDatabaseRequest}
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -11,7 +11,7 @@ import slick.jdbc.JdbcProfile
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 
-class DatabaseSupervisor (val billDbConfig: DatabaseConfig[JdbcProfile], val userDbConfig: DatabaseConfig[JdbcProfile])
+class DatabaseSupervisor (val dbConfig: DatabaseConfig[JdbcProfile])
   (implicit val system: ActorSystem, implicit val timeout: Timeout)
     extends Actor {
 
@@ -25,12 +25,13 @@ class DatabaseSupervisor (val billDbConfig: DatabaseConfig[JdbcProfile], val use
         super.supervisorStrategy.decider.applyOrElse(t, (_: Any) => Restart)
     }
 
-  val db = userDbConfig.db
-  val userRepository = new UserRepository(userDbConfig.profile)
+  val db = dbConfig.db
+  val userRepository = new UserRepository(dbConfig.profile)
+  val billRepository = new BillRepository(dbConfig.profile)
 
   override def receive = {
     case req: BillDatabaseRequest =>
-      pipe(context.actorOf(Props(new BillActor(billDbConfig))) ? req) to sender
+      pipe(context.actorOf(Props(new BillActor(db, billRepository))) ? req) to sender
 
     case req: UserDatabaseRequest =>
       pipe(context.actorOf(Props(new UserActor(db, userRepository))) ? req) to sender
