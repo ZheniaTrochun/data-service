@@ -49,19 +49,19 @@ class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRe
             Future.successful(UserAlreadyExists)
 
           case None =>
-            db.run(userRepository.findOneByName(user.name)) flatMap {
-              case Some(_) =>
-                logger.debug(s"User with name = ${user.name} is already exists")
-                Future.successful(UserAlreadyExists)
-
-              case None =>
+//            db.run(userRepository.findOneByName(user.name)) flatMap {
+//              case Some(_) =>
+//                logger.debug(s"User with name = ${user.name} is already exists")
+//                Future.successful(UserAlreadyExists)
+//
+//              case None =>
                 logger.debug("Creating user ...")
                 db.run(userRepository.save(user))
 
-              case _ =>
-                logger.error("Creating user FAILED with NPE with select by name!!!")
-                Future.failed(new NullPointerException("321"))
-            }
+//              case _ =>
+//                logger.error("Creating user FAILED with NPE with select by name!!!")
+//                Future.failed(new NullPointerException("321"))
+//            }
 
           case _ =>
             logger.error("Creating user FAILED with NPE with select by email!!!")
