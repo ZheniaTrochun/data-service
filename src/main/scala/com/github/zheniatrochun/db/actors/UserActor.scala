@@ -7,23 +7,17 @@ import com.github.zheniatrochun.db.repositories.UserRepository
 import com.github.zheniatrochun.models.requests._
 import com.github.zheniatrochun.exceptions.UserAlreadyExists
 import org.slf4j.LoggerFactory
-import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
 import scala.concurrent.Future
 
-class UserActor(val dbConfig: DatabaseConfig[JdbcProfile])
+class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRepository)
                (implicit val system: ActorSystem, implicit val timeout: Timeout)
   extends Actor {
 
   import context.dispatcher
 
   val logger = LoggerFactory.getLogger(this.getClass)
-
-  val db = dbConfig.db
-  val driver = dbConfig.profile
-
-  val userRepository = new UserRepository(driver)
 
   override def receive = {
     case FindUserById(id) =>

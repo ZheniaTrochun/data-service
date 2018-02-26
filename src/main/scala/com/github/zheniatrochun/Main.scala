@@ -12,6 +12,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.util.Timeout
 import com.github.zheniatrochun.api.{AdminRoutes, BillRoutes, UserRoutes}
 import com.github.zheniatrochun.db.actors.{BillActor, DatabaseSupervisor, UserActor}
+import com.github.zheniatrochun.db.repositories.UserRepository
 import com.github.zheniatrochun.services.{AdminServiceImpl, BillServiceImpl, UserServiceImpl}
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -30,7 +31,7 @@ object Main extends App with AppConfig {
 
   val dbSupervisor = system.actorOf(Props(new DatabaseSupervisor(dbConfig, dbConfig)))
 
-  val userActor = system.actorOf(Props(new UserActor(dbConfig)))
+  val userActor = system.actorOf(Props(new UserActor(dbConfig.db, new UserRepository(dbConfig.profile))))
 //  val userService = new UserServiceImpl(userActor)
   val userService = new UserServiceImpl(dbSupervisor)
   val userRoutes = new UserRoutes(userService)
