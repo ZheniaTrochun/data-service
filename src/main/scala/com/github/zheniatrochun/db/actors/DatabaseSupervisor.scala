@@ -30,7 +30,7 @@ class DatabaseSupervisor (val billDbConfig: DatabaseConfig[JdbcProfile], val use
       pipe(context.actorOf(Props(new BillActor(billDbConfig))) ? req) to sender
 
     case req: UserDatabaseRequest =>
-      pipe(context.actorOf(Props(new BillActor(userDbConfig))) ? req) to sender
+      pipe(context.actorOf(Props(new UserActor(userDbConfig))) ? req) to sender
 
     case _ =>
       sender ! new InternalError("Invalid request to supervisor!")
