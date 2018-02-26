@@ -24,8 +24,8 @@ class UserRepository(override val driver: JdbcProfile) extends Repository[User, 
     tableQuery.schema.drop
   }
 
-  def findOneByName(username: String): SqlAction[Option[User], NoStream, Effect.Read] = {
-    tableQuery.filter(_.name === username).result.headOption
+  def findOneByName(name: String): SqlAction[Option[User], NoStream, Effect.Read] = {
+    tableQuery.filter(_.name === name).result.headOption
   }
 
   def findOneByEmail(email: String): SqlAction[Option[User], NoStream, Effect.Read] = {
@@ -39,7 +39,7 @@ class UserRepository(override val driver: JdbcProfile) extends Repository[User, 
 
   class Users(tag: Tag) extends Table[User](tag, "USERS") with Keyed[Int] {
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
-    def name = column[String]("name", O.SqlType("VARCHAR(20)"), O.Unique)
+    def name = column[String]("username", O.SqlType("VARCHAR(30)"), O.Unique)
     def email = column[String]("email", O.SqlType("VARCHAR(30)"), O.Unique)
 
     override def * = (id.?, name, email) <> ((User.apply _).tupled, User.unapply)
