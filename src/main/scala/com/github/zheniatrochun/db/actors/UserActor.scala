@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory
 import slick.jdbc.JdbcProfile
 
 import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRepository)
                (implicit val system: ActorSystem, implicit val timeout: Timeout)
@@ -33,6 +34,7 @@ class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRe
     case FindUserByEmail(email) =>
       logger.debug(s"Received request: FindUserByEmail($email)")
       pipe(db.run(userRepository.findOneByEmail(email))) to sender
+      Future.successful(123).pipeTo(sender)
       context.stop(self)
 
     case FindAllUsers =>
@@ -42,22 +44,26 @@ class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRe
 
     case CreateUser(user) =>
       logger.debug(s"Received request: CreateUser($user)")
-      db.run(userRepository.findOneByEmail(user.email)) foreach {
-        case Some(_) =>
-          logger.debug(s"User with mail = ${user.email} is already exists")
-          pipe(Future.successful(UserAlreadyExists)) to sender
-
-        case None =>
-          db.run(userRepository.findOneByName(user.name)) foreach {
-            case Some(_) =>
-              logger.debug(s"User with name = ${user.name} is already exists")
-              pipe(Future.successful(UserAlreadyExists)) to sender()
-
-            case None =>
-              logger.debug("Creating user ...")
-              pipe(db.run(userRepository.save(user))) to sender()
-          }
+      db.run(userRepository.findOneByEmail(user.email)).onComplete {
+        case Success(_) =>      logger.debug(s"SUCCESSSSSSS")
+        case Failure(_) =>      logger.debug(s"FAILUREEEEEE")
       }
+//      db.run(userRepository.findOneByEmail(user.email)) foreach {
+//        case Some(_) =>
+//          logger.debug(s"User with mail = ${user.email} is already exists")
+//          pipe(Future.successful(UserAlreadyExists)) to sender
+//
+//        case None =>
+//          db.run(userRepository.findOneByName(user.name)) foreach {
+//            case Some(_) =>
+//              logger.debug(s"User with name = ${user.name} is already exists")
+//              pipe(Future.successful(UserAlreadyExists)) to sender()
+//
+//            case None =>
+//              logger.debug("Creating user ...")
+//              pipe(db.run(userRepository.save(user))) to sender()
+//          }
+//      }
       context.stop(self)
 
     case DeleteUser(id) =>
