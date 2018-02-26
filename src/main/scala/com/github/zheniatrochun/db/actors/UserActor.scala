@@ -57,11 +57,15 @@ class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRe
               case None =>
                 logger.debug("Creating user ...")
                 db.run(userRepository.save(user))
+
+              case _ =>
+                logger.error("Creating user FAILED with NPE with select by name!!!")
+                Future.failed(new NullPointerException("321"))
             }
 
           case _ =>
-            logger.error("Creating user FAILED with NPE!!!")
-            Future.failed(new NullPointerException)
+            logger.error("Creating user FAILED with NPE with select by email!!!")
+            Future.failed(new NullPointerException("123"))
         }
       } to sender
       context.stop(self)
