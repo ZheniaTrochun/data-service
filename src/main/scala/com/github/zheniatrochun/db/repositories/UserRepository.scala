@@ -24,8 +24,8 @@ class UserRepository(override val driver: JdbcProfile) extends Repository[User, 
     tableQuery.schema.drop
   }
 
-  def findOneByName(name: String): SqlAction[Option[User], NoStream, Effect.Read] = {
-    tableQuery.filter(_.name === name).result.headOption
+  def findOneByName(username: String): SqlAction[Option[User], NoStream, Effect.Read] = {
+    tableQuery.filter(_.name === username).result.headOption
   }
 
   def findOneByEmail(email: String): SqlAction[Option[User], NoStream, Effect.Read] = {
