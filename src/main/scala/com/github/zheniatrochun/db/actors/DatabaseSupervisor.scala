@@ -7,6 +7,8 @@ import com.github.zheniatrochun.models.requests.{BillDatabaseRequest, UserDataba
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import scala.language.postfixOps
 
 class DatabaseSupervisor (val billDbConfig: DatabaseConfig[JdbcProfile], val userDbConfig: DatabaseConfig[JdbcProfile])
