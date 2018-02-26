@@ -41,6 +41,7 @@ class UserActor(val dbConfig: DatabaseConfig[JdbcProfile])
     case FindAllUsers =>
       logger.debug("Received request: FindAllUsers")
       pipe(db.run(userRepository.findAll())) to sender
+      context.stop(self)
 
     case CreateUser(user) =>
       logger.debug(s"Received request: CreateUser($user)")
@@ -62,6 +63,7 @@ class UserActor(val dbConfig: DatabaseConfig[JdbcProfile])
             }
         }
       } to sender
+      context.stop(self)
 
     case DeleteUser(id) =>
       logger.debug(s"Received request: DeleteUser($id)")
