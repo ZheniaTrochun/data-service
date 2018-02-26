@@ -42,32 +42,22 @@ class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRe
 
     case CreateUser(user) =>
       logger.debug(s"Received request: CreateUser($user)")
-      pipe {
-        db.run(userRepository.findOneByEmail(user.email)) flatMap  {
-          case Some(_) =>
-            logger.debug(s"User with mail = ${user.email} is already exists")
-            Future.successful(UserAlreadyExists)
+      db.run(userRepository.findOneByEmail(user.email)) foreach {
+        case Some(_) =>
+          logger.debug(s"User with mail = ${user.email} is already exists")
+          pipe(Future.successful(UserAlreadyExists)) to sender
 
-          case None =>
-//            db.run(userRepository.findOneByName(user.name)) flatMap {
-//              case Some(_) =>
-//                logger.debug(s"User with name = ${user.name} is already exists")
-//                Future.successful(UserAlreadyExists)
-//
-//              case None =>
-                logger.debug("Creating user ...")
-                db.run(userRepository.save(user))
+        case None =>
+          db.run(userRepository.findOneByName(user.name)) foreach {
+            case Some(_) =>
+              logger.debug(s"User with name = ${user.name} is already exists")
+              pipe(Future.successful(UserAlreadyExists)) to sender()
 
-//              case _ =>
-//                logger.error("Creating user FAILED with NPE with select by name!!!")
-//                Future.failed(new NullPointerException("321"))
-//            }
-
-          case _ =>
-            logger.error("Creating user FAILED with NPE with select by email!!!")
-            Future.failed(new NullPointerException("123"))
-        }
-      } to sender
+            case None =>
+              logger.debug("Creating user ...")
+              pipe(db.run(userRepository.save(user))) to sender()
+          }
+      }
       context.stop(self)
 
     case DeleteUser(id) =>
