@@ -10,8 +10,8 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import akka.http.scaladsl.server.Directives._
 import akka.util.Timeout
+import com.github.zheniatrochun.actors.db.DatabaseSupervisor
 import com.github.zheniatrochun.api.{AdminRoutes, BillRoutes, UserRoutes}
-import com.github.zheniatrochun.db.actors.DatabaseSupervisor
 import com.github.zheniatrochun.services.{AdminServiceImpl, BillServiceImpl, UserServiceImpl}
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -35,7 +35,7 @@ object Main extends App with AppConfig {
   val billService = new BillServiceImpl(dbSupervisor)
   val billRoutes = new BillRoutes(billService)
 
-  val adminService = new AdminServiceImpl(dbConfig)
+  val adminService = new AdminServiceImpl(dbSupervisor)
   val adminRoutes = new AdminRoutes(adminService)
 
   Http().bindAndHandle(

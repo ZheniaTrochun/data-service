@@ -1,10 +1,10 @@
-package com.github.zheniatrochun.db.actors
+package com.github.zheniatrochun.actors.db
 
 import akka.actor.{Actor, ActorSystem, Props}
 import akka.pattern.{ask, pipe}
 import akka.util.Timeout
 import com.github.zheniatrochun.db.repositories.{BillRepository, UserRepository}
-import com.github.zheniatrochun.models.requests.{BillDatabaseRequest, UserDatabaseRequest}
+import com.github.zheniatrochun.models.requests.{BillDatabaseRequest, GeneralDatabaseRequests, UserDatabaseRequest}
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
@@ -17,6 +17,7 @@ class DatabaseSupervisor (val dbConfig: DatabaseConfig[JdbcProfile])
 
   import akka.actor.OneForOneStrategy
   import akka.actor.SupervisorStrategy._
+
   import scala.concurrent.duration._
 
   override val supervisorStrategy =
@@ -35,6 +36,10 @@ class DatabaseSupervisor (val dbConfig: DatabaseConfig[JdbcProfile])
 
     case req: UserDatabaseRequest =>
       pipe(context.actorOf(Props(new UserActor(db, userRepository))) ? req) to sender
+
+    case req: GeneralDatabaseRequests =>
+      context.actorOf(Props(new UserActor(db, userRepository))) ! req
+      context.actorOf(Props(new BillActor(db, billRepository))) ! req
 
     case _ =>
       sender ! new InternalError("Invalid request to supervisor!")

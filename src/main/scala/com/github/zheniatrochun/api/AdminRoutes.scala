@@ -30,22 +30,6 @@ class AdminRoutes(val adminService: AdminService)
         (path("drop-tables") & get) {
           adminService.dropTables()
           complete("Ok")
-        } ~
-        (path("create-table-user") & get) {
-          adminService.createUserTable()
-          complete("Ok")
-        } ~
-        (path("create-table-bill") & get) {
-          adminService.createBillTable()
-          complete("Ok")
-        } ~
-        (path("drop-table-user") & get) {
-          adminService.dropUserTable()
-          complete("Ok")
-        } ~
-        (path("drop-table-bill") & get) {
-          adminService.dropBillTable()
-          complete("Ok")
         }
       }
     }
