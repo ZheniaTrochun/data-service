@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory
 import slick.jdbc.JdbcProfile
 
 import scala.concurrent.{Await, Future}
-import scala.util.{Failure, Success}
 
 class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRepository)
                (implicit val system: ActorSystem, implicit val timeout: Timeout)
@@ -44,33 +43,18 @@ class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRe
 
     case CreateUser(user) =>
       logger.debug(s"Received request: CreateUser($user)")
-//      db.run(userRepository.findOneByEmail(user.email)) foreach {
-//        case Some(_) =>
-//          logger.debug(s"User with mail = ${user.email} is already exists")
-//          pipe(Future.successful(UserAlreadyExists)) to sender
-//
-//        case None =>
-//          db.run(userRepository.findOneByName(user.name)) foreach {
-//            case Some(_) =>
-//              logger.debug(s"User with name = ${user.name} is already exists")
-//              pipe(Future.successful(UserAlreadyExists)) to sender()
-//
-//            case None =>
-//              logger.debug("Creating user ...")
-//              pipe(db.run(userRepository.save(user))) to sender()
-//          }
-//      }
+// slick not allows to create a composition of db.run's via flatMap :(
 
       if (Await.result(db.run(userRepository.findOneByEmail(user.email)), timeout.duration).isDefined) {
         logger.debug(s"User with mail = ${user.email} is already exists")
-        pipe(Future.successful(UserAlreadyExists)) to sender
+        Future.successful(UserAlreadyExists) pipeTo sender
       } else {
         if (Await.result(db.run(userRepository.findOneByName(user.name)),timeout.duration).isDefined) {
           logger.debug(s"User with name = ${user.name} is already exists")
-          pipe(Future.successful(UserAlreadyExists)) to sender()
+          Future.successful(UserAlreadyExists) pipeTo sender
         } else {
           logger.debug("Creating user ...")
-          pipe(db.run(userRepository.save(user))) to sender()
+          db.run(userRepository.save(user)) pipeTo sender
         }
       }
 
