@@ -9,7 +9,7 @@ import com.github.zheniatrochun.exceptions.UserAlreadyExists
 import org.slf4j.LoggerFactory
 import slick.jdbc.JdbcProfile
 
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success}
 
 class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRepository)
@@ -44,10 +44,6 @@ class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRe
 
     case CreateUser(user) =>
       logger.debug(s"Received request: CreateUser($user)")
-      db.run(userRepository.findOneByEmail(user.email)).onComplete {
-        case Success(_) =>      logger.debug(s"SUCCESSSSSSS")
-        case Failure(_) =>      logger.debug(s"FAILUREEEEEE")
-      }
 //      db.run(userRepository.findOneByEmail(user.email)) foreach {
 //        case Some(_) =>
 //          logger.debug(s"User with mail = ${user.email} is already exists")
@@ -64,6 +60,20 @@ class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRe
 //              pipe(db.run(userRepository.save(user))) to sender()
 //          }
 //      }
+
+      if (Await.result(db.run(userRepository.findOneByEmail(user.email)), timeout.duration).isDefined) {
+        logger.debug(s"User with mail = ${user.email} is already exists")
+        pipe(Future.successful(UserAlreadyExists)) to sender
+      } else {
+        if (Await.result(db.run(userRepository.findOneByName(user.name)),timeout.duration).isDefined) {
+          logger.debug(s"User with name = ${user.name} is already exists")
+          pipe(Future.successful(UserAlreadyExists)) to sender()
+        } else {
+          logger.debug("Creating user ...")
+          pipe(db.run(userRepository.save(user))) to sender()
+        }
+      }
+
       context.stop(self)
 
     case DeleteUser(id) =>
