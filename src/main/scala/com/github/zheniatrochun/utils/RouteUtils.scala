@@ -3,6 +3,7 @@ package com.github.zheniatrochun.utils
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import com.github.zheniatrochun.config.AppConfig
 import com.github.zheniatrochun.models.json.JsonProtocol._
 import spray.json._
 

@@ -1,8 +1,9 @@
-package com.github.zheniatrochun.actors.db
+package com.github.zheniatrochun.actors
 
 import akka.actor.{Actor, ActorSystem, Props}
 import akka.pattern.{ask, pipe}
 import akka.util.Timeout
+import com.github.zheniatrochun.actors.db.{BillActor, UserActor}
 import com.github.zheniatrochun.db.repositories.{BillRepository, UserRepository}
 import com.github.zheniatrochun.models.requests.{BillDatabaseRequest, GeneralDatabaseRequests, UserDatabaseRequest}
 import slick.basic.DatabaseConfig

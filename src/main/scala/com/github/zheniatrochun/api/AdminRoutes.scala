@@ -1,8 +1,9 @@
 package com.github.zheniatrochun.api
 
 import akka.http.scaladsl.server.Directives._
+import com.github.zheniatrochun.config._
 import com.github.zheniatrochun.services.AdminService
-import com.github.zheniatrochun.utils.{AppConfig, InitConfig, RouteUtils}
+import com.github.zheniatrochun.utils.RouteUtils
 
 
 class AdminRoutes(val adminService: AdminService)
@@ -12,12 +13,10 @@ class AdminRoutes(val adminService: AdminService)
     pathPrefix("admin") {
       pathPrefix("config") {
         (path("create-dummy") & get) {
-          InitConfig.createDummyConfig()
-          config.update()
+          config.createDummyConfig()
           complete("Ok")
         } ~
         (path("update") & get) {
-          InitConfig.createDummyConfig()
           config.update()
           complete("Ok")
         }

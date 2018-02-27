@@ -4,14 +4,14 @@ import akka.stream.ActorMaterializer
 import akka.actor.{ActorSystem, Props}
 import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.Http
-import com.github.zheniatrochun.utils.AppConfig
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import akka.http.scaladsl.server.Directives._
 import akka.util.Timeout
-import com.github.zheniatrochun.actors.db.DatabaseSupervisor
+import com.github.zheniatrochun.actors.DatabaseSupervisor
 import com.github.zheniatrochun.api.{AdminRoutes, BillRoutes, UserRoutes}
+import com.github.zheniatrochun.config.AppConfig
 import com.github.zheniatrochun.services.{AdminServiceImpl, BillServiceImpl, UserServiceImpl}
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
