@@ -6,3 +6,4 @@
 1. Add Kafka
 2. Add Kubernetes
 3. Collect logs to ElasticSearch
+4. Create unit and integration tests
