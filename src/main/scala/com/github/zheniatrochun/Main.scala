@@ -10,7 +10,7 @@ import scala.concurrent.duration._
 import akka.http.scaladsl.server.Directives._
 import akka.util.Timeout
 import com.github.zheniatrochun.actors.DatabaseSupervisor
-import com.github.zheniatrochun.api.{AdminRoutes, BillRoutes, UserRoutes}
+import com.github.zheniatrochun.api.{AdminRoutes, BillRoutes, HealthRoutes, UserRoutes}
 import com.github.zheniatrochun.config.AppConfig
 import com.github.zheniatrochun.services.{AdminServiceImpl, BillServiceImpl, UserServiceImpl}
 import slick.basic.DatabaseConfig
@@ -18,7 +18,7 @@ import slick.jdbc.JdbcProfile
 
 import scala.language.postfixOps
 
-object Main extends App with AppConfig {
+object Main extends App with AppConfig with HealthRoutes {
   private implicit val system: ActorSystem = ActorSystem()
   protected implicit val executor: ExecutionContext = system.dispatcher
   protected val log: LoggingAdapter = Logging(system, getClass)
@@ -39,7 +39,7 @@ object Main extends App with AppConfig {
   val adminRoutes = new AdminRoutes(adminService)
 
   Http().bindAndHandle(
-    handler = logRequestResult("log")(userRoutes.routes ~ billRoutes.routes ~ adminRoutes.routes),
+    handler = logRequestResult("log")(userRoutes.routes ~ billRoutes.routes ~ adminRoutes.routes ~ healthRoutes),
     interface = httpInterface,
     port = httpPort)
 }
