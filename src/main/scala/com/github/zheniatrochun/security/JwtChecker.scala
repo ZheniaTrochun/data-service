@@ -9,7 +9,7 @@ trait JwtChecker extends JwtUtils with AppConfig {
 
   def validateJwt(action: => Route): Route = {
     headerValueByName("Authentication") { jwt =>
-      validateJwtOrElse[Route](jwt, complete(StatusCodes.Unauthorized)) {
+      validateJwtOrElse[Route](jwt)(complete(StatusCodes.Unauthorized)) {
         action
       }
     }
