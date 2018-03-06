@@ -10,6 +10,7 @@ case class FindUserByEmail(email: String) extends UserDatabaseRequest
 case object FindAllUsers extends UserDatabaseRequest
 
 case class DeleteUser(id: Int) extends UserDatabaseRequest
+case class DeleteUserByName(name: String) extends UserDatabaseRequest
 
 case class CreateUser(user: User) extends UserDatabaseRequest
 

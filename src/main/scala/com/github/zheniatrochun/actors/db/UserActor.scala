@@ -65,6 +65,11 @@ class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRe
       pipe(db.run(userRepository.deleteById(id))) to sender
       context.stop(self)
 
+    case DeleteUserByName(name) =>
+      logger.debug(s"Received request: DeleteUserByName($name)")
+      pipe(db.run(userRepository.deleteByName(name))) to sender
+      context.stop(self)
+
     case UpdateUser(user) =>
       logger.debug(s"Received request: UpdateUser($user)")
       pipe(db.run(userRepository.update(user))) to sender

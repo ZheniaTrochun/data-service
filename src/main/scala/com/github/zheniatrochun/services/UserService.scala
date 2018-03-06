@@ -21,6 +21,8 @@ trait UserService {
 
   def delete(id: Int): Future[Option[Int]]
 
+  def deleteByName(name: String): Future[Option[Int]]
+
   def getById(id: Int): Future[Option[User]]
 
   def getByName(name: String): Future[Option[User]]
@@ -77,6 +79,18 @@ class UserServiceImpl(val dbActor: ActorRef)
     dbActor ? DeleteUser(id) flatMap {
       case res: Int =>
         logger.debug(s"User deletion OK, id = $id")
+        Future.successful(Some(res))
+
+      case _ =>
+        logger.error(s"Error in actor model")
+        Future.failed(new InternalError())
+    }
+  }
+
+  override def deleteByName(name: String): Future[Option[Int]] = {
+    dbActor ? DeleteUserByName(name) flatMap {
+      case res: Int =>
+        logger.debug(s"User deletion OK, id = $res")
         Future.successful(Some(res))
 
       case _ =>

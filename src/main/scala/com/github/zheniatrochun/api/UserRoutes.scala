@@ -5,12 +5,13 @@ import com.github.zheniatrochun.models.User
 import com.github.zheniatrochun.services.UserService
 import com.github.zheniatrochun.utils.RouteUtils
 import com.github.zheniatrochun.models.json.JsonProtocol._
+import com.github.zheniatrochun.security.JwtChecker
 import spray.json._
 
 
 
 class UserRoutes(val userService: UserService)
-  extends RouteUtils {
+  extends RouteUtils with JwtChecker {
 
   val routes = {
     pathPrefix("users") {
@@ -23,15 +24,19 @@ class UserRoutes(val userService: UserService)
       } ~
       put {
         entity(as[User]) { user =>
-          completeWithFuture {
-            userService.update(user).toFutureJson
+          validateJwtAndCheckUser(user.name) {
+            completeWithFuture {
+              userService.update(user).toFutureJson
+            }
           }
         }
       } ~
       delete {
-        parameters('id.as[Int]) { id =>
-          completeWithFuture {
-            userService.delete(id).toFutureJson(idWriter)
+        parameters('name) { name =>
+          validateJwtAndCheckUser(name) {
+            completeWithFuture {
+              userService.deleteByName(name).toFutureJson(idWriter)
+            }
           }
         }
       } ~

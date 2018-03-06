@@ -36,6 +36,10 @@ class UserRepository(override val driver: JdbcProfile) extends Repository[User, 
     tableQuery.filter(_.id === id).delete
   }
 
+  def deleteByName(name: String): FixedSqlAction[Int, NoStream, Effect.Write] = {
+    tableQuery.filter(_.name === name).delete
+  }
+
 
   class Users(tag: Tag) extends Table[User](tag, "USERS") with Keyed[Int] {
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)

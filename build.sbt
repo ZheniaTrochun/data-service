@@ -27,6 +27,7 @@ libraryDependencies ++= {
     "net.debasishg"               %% "redisclient"                          % "3.5",
     "joda-time"                    % "joda-time"                            % "2.9.9",
     "org.joda"                     % "joda-convert"                         % "1.8.1",
+    "com.jason-goodwin"           %% "authentikat-jwt"                      % "0.4.5",
     "com.typesafe.scala-logging"  %% "scala-logging"                        % "3.1.0",
     "ch.qos.logback"               % "logback-classic"                      % "1.1.3",
     "org.scalatest"               %% "scalatest"                            % "2.2.5"               % "test",
