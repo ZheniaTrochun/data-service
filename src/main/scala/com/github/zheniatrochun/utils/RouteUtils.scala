@@ -17,6 +17,11 @@ trait RouteUtils extends AppConfig {
     override def write(obj: Int): JsValue = s"""{id:$obj}""".toJson
   }
 
+  private class BooleanWriter extends JsonWriter[Boolean] {
+    override def write(obj: Boolean): JsValue = s"""{success:$obj}""".toJson
+  }
+
+  implicit val boolWriter: JsonWriter[Boolean] = new BooleanWriter()
   implicit val idWriter: JsonWriter[Int] = new IdWriter()
 
   implicit class jsonFromOptionalFuture[T](f: Future[Option[T]]) {

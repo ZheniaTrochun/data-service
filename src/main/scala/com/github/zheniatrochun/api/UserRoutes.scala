@@ -35,7 +35,7 @@ class UserRoutes(val userService: UserService)
         parameters('name) { name =>
           validateJwtAndCheckUser(name) {
             completeWithFuture {
-              userService.deleteByName(name).toFutureJson(idWriter)
+              userService.deleteByName(name).toFutureJson(boolWriter)
             }
           }
         }

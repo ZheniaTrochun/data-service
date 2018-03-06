@@ -19,9 +19,9 @@ trait UserService {
 
   def update(user: User): Future[Option[User]]
 
-  def delete(id: Int): Future[Option[Int]]
+  def delete(id: Int): Future[Boolean]
 
-  def deleteByName(name: String): Future[Option[Int]]
+  def deleteByName(name: String): Future[Boolean]
 
   def getById(id: Int): Future[Option[User]]
 
@@ -75,11 +75,11 @@ class UserServiceImpl(val dbActor: ActorRef)
     }
   }
 
-  override def delete(id: Int): Future[Option[Int]] = {
+  override def delete(id: Int): Future[Boolean] = {
     dbActor ? DeleteUser(id) flatMap {
       case res: Int =>
-        logger.debug(s"User deletion OK, id = $id")
-        Future.successful(Some(res))
+        logger.debug(s"User deletion OK, number = $res")
+        Future.successful(res != 0)
 
       case _ =>
         logger.error(s"Error in actor model")
@@ -87,11 +87,11 @@ class UserServiceImpl(val dbActor: ActorRef)
     }
   }
 
-  override def deleteByName(name: String): Future[Option[Int]] = {
+  override def deleteByName(name: String): Future[Boolean] = {
     dbActor ? DeleteUserByName(name) flatMap {
       case res: Int =>
-        logger.debug(s"User deletion OK, id = $res")
-        Future.successful(Some(res))
+        logger.debug(s"User deletion OK, number = $res")
+        Future.successful(res != 0)
 
       case _ =>
         logger.error(s"Error in actor model")
