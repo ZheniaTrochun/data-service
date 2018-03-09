@@ -10,6 +10,7 @@ import com.github.zheniatrochun.models.requests.{SendRequestToAuth, SendRequestT
 
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class HttpActor(implicit val system: ActorSystem, implicit val mat: Materializer)
   extends Actor with AppConfig {
