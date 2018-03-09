@@ -5,6 +5,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import com.github.zheniatrochun.config.AppConfig
 import com.github.zheniatrochun.models.json.JsonProtocol._
+import org.slf4j.LoggerFactory
 import spray.json._
 
 import scala.concurrent.Future
@@ -12,6 +13,8 @@ import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait RouteUtils extends AppConfig {
+
+  val logger = LoggerFactory.getLogger(this.getClass)
 
   private class IdWriter extends JsonWriter[Int] {
     override def write(obj: Int): JsValue = s"""{id:$obj}""".parseJson
@@ -54,6 +57,7 @@ trait RouteUtils extends AppConfig {
         }
 
       case Failure(err) =>
+        logger.error("Error occurred! ATTENTION!", err)
         val response = HttpResponse(StatusCodes.InternalServerError, entity = HttpEntity(err.getMessage))
         complete(response)
     }
