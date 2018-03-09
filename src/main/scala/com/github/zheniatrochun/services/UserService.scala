@@ -97,7 +97,7 @@ class UserServiceImpl(val dbActor: ActorRef, val httpActor: ActorRef)
 //        if deleted something we need to delete creds too
         if (res != 0) {
           val promise: Promise[HttpResponse] = Promise[HttpResponse]()
-          httpActor ! SendRequestToAuth(promise, RequestBuilding.Delete(s"/user?name=$name"))
+          httpActor ! SendRequestToAuth(promise, RequestBuilding.Delete(s"/auth/user?name=$name"))
 
           Future.successful(true)
         } else {
