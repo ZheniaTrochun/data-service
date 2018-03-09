@@ -36,9 +36,9 @@ class BillServiceImpl(val dbActor: ActorRef)
     dbActor ? FindUserByName(username) flatMap {
       case user: User =>
         dbActor ? CreateBill(BillBuilder(dto).withUser(user.id.get).build()) flatMap {
-          case id: Int =>
-            logger.debug(s"Bill creation by id OK, id = $id")
-            Future.successful(Some(id))
+          case bill: Bill =>
+            logger.debug(s"Bill creation by id OK, bill = $bill")
+            Future.successful(Some(bill.id.get))
 
           case _ =>
             logger.error(s"Error in actor model")
