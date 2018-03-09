@@ -28,7 +28,7 @@ object Main extends App with AppConfig with HealthRoutes {
   private val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("postgres")
 
   val dbSupervisor = system.actorOf(Props(new DatabaseSupervisor(dbConfig)))
-  val httpActor = system.actorOf(Props[HttpActor])
+  val httpActor = system.actorOf(Props(new HttpActor()))
 
   val userService = new UserServiceImpl(dbSupervisor, httpActor)
   val userRoutes = new UserRoutes(userService)
