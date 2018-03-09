@@ -34,7 +34,7 @@ class BillServiceImpl(val dbActor: ActorRef)
 
   override def create(dto: BillDto, username: String): Future[Option[Int]] = {
     dbActor ? FindUserByName(username) flatMap {
-      case user: User =>
+      case Some(user: User) =>
         dbActor ? CreateBill(BillBuilder(dto).withUser(user.id.get).build()) flatMap {
           case bill: Bill =>
             logger.debug(s"Bill creation by id OK, bill = $bill")
