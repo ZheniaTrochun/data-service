@@ -9,7 +9,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import akka.http.scaladsl.server.Directives._
 import akka.util.Timeout
-import com.github.zheniatrochun.actors.DatabaseSupervisor
+import com.github.zheniatrochun.actors.{DatabaseSupervisor, HttpActor}
 import com.github.zheniatrochun.api.{AdminRoutes, BillRoutes, HealthRoutes, UserRoutes}
 import com.github.zheniatrochun.config.AppConfig
 import com.github.zheniatrochun.services.{AdminServiceImpl, BillServiceImpl, UserServiceImpl}
@@ -28,8 +28,9 @@ object Main extends App with AppConfig with HealthRoutes {
   private val dbConfig: DatabaseConfig[JdbcProfile] = DatabaseConfig.forConfig("postgres")
 
   val dbSupervisor = system.actorOf(Props(new DatabaseSupervisor(dbConfig)))
+  val httpActor = system.actorOf(Props[HttpActor])
 
-  val userService = new UserServiceImpl(dbSupervisor)
+  val userService = new UserServiceImpl(dbSupervisor, httpActor)
   val userRoutes = new UserRoutes(userService)
 
   val billService = new BillServiceImpl(dbSupervisor)

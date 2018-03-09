@@ -1,6 +1,8 @@
 package com.github.zheniatrochun.services
 
 import akka.actor.ActorRef
+import akka.http.scaladsl.client.RequestBuilding
+import akka.http.scaladsl.model.HttpResponse
 import com.github.zheniatrochun.models.User
 import com.github.zheniatrochun.validators.UserValidator._
 import akka.pattern.ask
@@ -9,7 +11,7 @@ import com.github.zheniatrochun.exceptions.UserAlreadyExists
 import com.github.zheniatrochun.models.requests._
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.Future
+import scala.concurrent.{Future, Promise}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait UserService {
@@ -32,7 +34,7 @@ trait UserService {
   def getAll(): Future[List[User]]
 }
 
-class UserServiceImpl(val dbActor: ActorRef)
+class UserServiceImpl(val dbActor: ActorRef, val httpActor: ActorRef)
                      (implicit val timeout: Timeout)
   extends UserService {
 
@@ -91,7 +93,16 @@ class UserServiceImpl(val dbActor: ActorRef)
     dbActor ? DeleteUserByName(name) flatMap {
       case res: Int =>
         logger.debug(s"User deletion OK, number = $res")
-        Future.successful(res != 0)
+
+//        if deleted something we need to delete creds too
+        if (res != 0) {
+          val promise: Promise[HttpResponse] = Promise[HttpResponse]()
+          httpActor ! SendRequestToAuth(promise, RequestBuilding.Delete(s"/user?name=$name"))
+
+          Future.successful(true)
+        } else {
+          Future.successful(false)
+        }
 
       case _ =>
         logger.error(s"Error in actor model")
