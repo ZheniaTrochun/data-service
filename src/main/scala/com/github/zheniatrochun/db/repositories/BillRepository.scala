@@ -48,7 +48,7 @@ class BillRepository(override val driver: JdbcProfile) extends Repository[Bill, 
     def id = column[Int]("ID", O.PrimaryKey, O.AutoInc)
     def user = column[Int]("user")
     def date = column[Date]("date", O.SqlType("DATE"))
-    def amount = column[Int]("amount")
+    def amount = column[Double]("amount")
     def currency = column[String]("currency")
     def tags = column[String]("tags")
 

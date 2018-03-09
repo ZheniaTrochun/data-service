@@ -14,7 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 trait RouteUtils extends AppConfig {
 
   private class IdWriter extends JsonWriter[Int] {
-    override def write(obj: Int): JsValue = s"""{id:$obj}""".toJson
+    override def write(obj: Int): JsValue = s"""{id:$obj}""".parseJson
   }
 
   implicit val idWriter: JsonWriter[Int] = new IdWriter()
@@ -34,7 +34,7 @@ trait RouteUtils extends AppConfig {
   implicit class JsonFromBoolean(f: Future[Boolean]) {
     def toFutureJson: Future[Option[JsValue]] = {
       f.map { res: Boolean =>
-        if (res) Some(s"""{"success":"$res"}""".toJson) else None
+        if (res) Some(s"""{"success":"$res"}""".parseJson) else None
       }
     }
   }

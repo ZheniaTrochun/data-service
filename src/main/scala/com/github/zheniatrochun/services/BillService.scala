@@ -2,9 +2,10 @@ package com.github.zheniatrochun.services
 
 import akka.actor.ActorRef
 import com.github.zheniatrochun.models.requests._
-import com.github.zheniatrochun.models.Bill
+import com.github.zheniatrochun.models.{Bill, BillBuilder, User}
 import akka.pattern.ask
 import akka.util.Timeout
+import com.github.zheniatrochun.models.dto.BillDto
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.Future
@@ -12,7 +13,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 
 trait BillService {
-  def create(bill: Bill): Future[Option[Int]]
+  def create(dto: BillDto, user: String): Future[Option[Int]]
 
   def update(bill: Bill): Future[Option[Bill]]
 
@@ -31,11 +32,18 @@ class BillServiceImpl(val dbActor: ActorRef)
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
-  override def create(bill: Bill) = {
-    dbActor ? CreateBill(bill) flatMap {
-      case id: Int =>
-        logger.debug(s"Bill getting by id OK, id = $id")
-        Future.successful(Some(id))
+  override def create(dto: BillDto, username: String): Future[Option[Int]] = {
+    dbActor ? FindUserByName(username) flatMap {
+      case user: User =>
+        dbActor ? CreateBill(BillBuilder(dto).withUser(user.id.get).build()) flatMap {
+          case id: Int =>
+            logger.debug(s"Bill creation by id OK, id = $id")
+            Future.successful(Some(id))
+
+          case _ =>
+            logger.error(s"Error in actor model")
+            Future.failed(new InternalError())
+        }
 
       case _ =>
         logger.error(s"Error in actor model")

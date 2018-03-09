@@ -5,13 +5,13 @@ import com.github.zheniatrochun.models.User
 import com.github.zheniatrochun.services.UserService
 import com.github.zheniatrochun.utils.RouteUtils
 import com.github.zheniatrochun.models.json.JsonProtocol._
-import com.github.zheniatrochun.security.JwtChecker
+import com.github.zheniatrochun.security.JwtUtils
 import spray.json._
 
 
 
 class UserRoutes(val userService: UserService)
-  extends RouteUtils with JwtChecker {
+  extends RouteUtils with JwtUtils {
 
   val routes = {
     pathPrefix("users") {
