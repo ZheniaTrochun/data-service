@@ -5,13 +5,13 @@ import java.sql.Date
 import com.byteslounge.slickrepo.meta.Entity
 import com.github.zheniatrochun.models.dto.BillDto
 
-case class Bill(id: Option[Int], user: Int, date: Date, amount: Double, currency: String, tags: Option[String])
+case class Bill(id: Option[Int], user: Int, date: Date, amount: Double, currency: String, tags: String)
   extends Entity[Bill, Int] {
 
   override def withId(id: Int) = this.copy(id = Some(id))
 }
 
-class BillBuilder(date: Date, amount: Double, currency: String, tags: Option[String]) {
+class BillBuilder(date: Date, amount: Double, currency: String, tags: String) {
   private var id: Option[Int] = None
   private var user: Int = 0
 
@@ -32,5 +32,5 @@ class BillBuilder(date: Date, amount: Double, currency: String, tags: Option[Str
 
 object BillBuilder {
   def apply(billDto: BillDto): BillBuilder =
-    new BillBuilder(billDto.date, billDto.amount, billDto.currency, billDto.tags)
+    new BillBuilder(billDto.date, billDto.amount, billDto.currency, billDto.tags.getOrElse("-"))
 }
