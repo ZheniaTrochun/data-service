@@ -6,7 +6,7 @@ import com.github.zheniatrochun.models.dto.BillDto
 import com.github.zheniatrochun.services.BillService
 import com.github.zheniatrochun.utils.RouteUtils
 import com.github.zheniatrochun.models.json.JsonProtocol._
-import com.github.zheniatrochun.security.{JwtUtils, JwtUtils}
+import com.github.zheniatrochun.security.JwtUtils
 import spray.json._
 
 import scala.language.postfixOps

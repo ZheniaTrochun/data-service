@@ -14,16 +14,15 @@ case class Bill(id: Option[Int], user: Int, date: Date, amount: Double, currency
 class BillBuilder(date: Date, amount: Double, currency: String, tags: Option[String]) {
   private var id: Option[Int] = None
   private var user: Int = 0
-  val self = this
 
   def withUser(user: Int): this.type = {
     this.user = user
-    self
+    this
   }
 
   def withId(id: Option[Int]): this.type = {
     this.id = id
-    self
+    this
   }
 
   def build(): Bill = {
