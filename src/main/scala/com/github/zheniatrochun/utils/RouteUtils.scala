@@ -17,21 +17,14 @@ trait RouteUtils extends AppConfig {
   val logger = LoggerFactory.getLogger(this.getClass)
 
   private class IdWriter extends JsonWriter[Int] {
-    override def write(obj: Int): JsValue = s"""{id:$obj}""".parseJson
+    override def write(obj: Int): JsValue = s"""{"id":$obj}""".parseJson
   }
 
   implicit val idWriter: JsonWriter[Int] = new IdWriter()
 
   implicit class jsonFromOptionalFuture[T](f: Future[Option[T]]) {
     def toFutureJson(implicit writer: JsonWriter[T]): Future[Option[JsValue]] = {
-      f map {
-        case Some(res) =>
-          logger.debug(s"insert res=$res")
-          Some(res.toJson)
-        case None =>
-          logger.debug("insert res=0")
-          Some(0.toJson)
-      }
+      f.map(res => res.map(_.toJson))
     }
   }
 
