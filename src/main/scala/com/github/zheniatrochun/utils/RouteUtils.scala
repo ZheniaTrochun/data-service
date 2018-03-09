@@ -24,7 +24,14 @@ trait RouteUtils extends AppConfig {
 
   implicit class jsonFromOptionalFuture[T](f: Future[Option[T]]) {
     def toFutureJson(implicit writer: JsonWriter[T]): Future[Option[JsValue]] = {
-      f.map(res => res.map(_.toJson))
+      f map {
+        case Some(res) =>
+          logger.debug(s"insert res=$res")
+          Some(res.toJson)
+        case None =>
+          logger.debug("insert res=0")
+          Some(0.toJson)
+      }
     }
   }
 
