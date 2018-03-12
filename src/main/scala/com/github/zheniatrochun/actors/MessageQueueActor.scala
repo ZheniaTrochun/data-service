@@ -33,6 +33,9 @@ class MessageQueueActor extends Actor with AppConfig {
     case Terminated =>
       channel.close()
       connection.close()
+
+    case _ =>
+      logger.error("Invalid request type!")
   }
 
 

@@ -39,7 +39,7 @@ class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef)
           case bill: Bill =>
             logger.debug(s"Bill creation OK, bill = $bill")
 //            publish to mq for statistics update
-            mqActor ! bill
+            mqActor ! PublishBill(bill)
             Future.successful(Some(bill.id.get))
 
           case _ =>
