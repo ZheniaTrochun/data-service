@@ -24,13 +24,9 @@ class MessageQueueActor extends Actor with AppConfig {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
-  logger.debug(s"Hello there!")
-
   override def receive = {
     case PublishBill(bill) =>
-      logger.debug(s"Received bill for publishing to RabbitMQ bill = $bill")
-      channel.basicPublish(exchangeName, "", null, bill.toJson.toString.getBytes())
-      logger.debug("Publish successful! \\o/")
+      publishBill(bill)
 
     case Terminated =>
       channel.close()
@@ -40,5 +36,16 @@ class MessageQueueActor extends Actor with AppConfig {
       logger.error("Invalid request type!")
   }
 
+  private def publishBill(bill: Bill): Unit = {
+    try {
+      logger.debug(s"Received bill for publishing to RabbitMQ bill = $bill")
 
+      channel.basicPublish(exchangeName, "", null, bill.toJson.toString.getBytes())
+
+      logger.debug("Publish successful! \\o/")
+    } catch {
+      case ex: Throwable =>
+        logger.error("Publish to RabbitMQ failed!", ex)
+    }
+  }
 }

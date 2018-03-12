@@ -91,18 +91,18 @@ class UserServiceImpl(val dbActor: ActorRef, val httpActor: ActorRef)
 
   override def deleteByName(name: String): Future[Boolean] = {
     dbActor ? DeleteUserByName(name) flatMap {
-      case res: Int =>
+      case res: Int if res != 0 =>
         logger.debug(s"User deletion OK, number = $res")
 
 //        if deleted something we need to delete creds too
-        if (res != 0) {
-          val promise: Promise[HttpResponse] = Promise[HttpResponse]()
-          httpActor ! SendRequestToAuth(promise, RequestBuilding.Delete(s"/auth/user?name=$name"))
+        val promise: Promise[HttpResponse] = Promise[HttpResponse]()
+        httpActor ! SendRequestToAuth(promise, RequestBuilding.Delete(s"/auth/user?name=$name"))
 
-          Future.successful(true)
-        } else {
-          Future.successful(false)
-        }
+        Future.successful(true)
+
+      case _: Int =>
+        logger.debug(s"User deletion FAILED")
+        Future.successful(false)
 
       case _ =>
         logger.error(s"Error in actor model")
