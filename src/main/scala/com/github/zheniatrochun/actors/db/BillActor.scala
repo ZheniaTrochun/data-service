@@ -55,12 +55,12 @@ class BillActor(val db: JdbcProfile#Backend#Database, val billRepository: BillRe
 
 
     case CreateSchema =>
-      logger.info(s"Received request: CreateSchema)")
+      logger.info(s"Received request: CreateSchema")
       db.run { billRepository.setupSchema() }
       context.stop(self)
 
     case DropSchema =>
-      logger.info(s"Received request: DropSchema)")
+      logger.info(s"Received request: DropSchema")
       db.run { billRepository.dropSchema() }
       context.stop(self)
 

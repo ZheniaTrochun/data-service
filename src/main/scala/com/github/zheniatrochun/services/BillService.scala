@@ -26,7 +26,7 @@ trait BillService {
   def getAll(): Future[List[Bill]]
 }
 
-class BillServiceImpl(val dbActor: ActorRef)
+class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef)
                      (implicit val timeout: Timeout)
   extends BillService {
 
@@ -37,7 +37,9 @@ class BillServiceImpl(val dbActor: ActorRef)
       case Some(user: User) =>
         dbActor ? CreateBill(BillBuilder(dto).withUser(user.id.get).build()) flatMap {
           case bill: Bill =>
-            logger.debug(s"Bill creation by id OK, bill = $bill")
+            logger.debug(s"Bill creation OK, bill = $bill")
+//            publish to mq for statistics update
+            mqActor ! bill
             Future.successful(Some(bill.id.get))
 
           case _ =>

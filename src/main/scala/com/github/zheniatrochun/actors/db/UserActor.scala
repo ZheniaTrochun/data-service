@@ -76,12 +76,12 @@ class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRe
       context.stop(self)
 
     case CreateSchema =>
-      logger.info(s"Received request: CreateSchema)")
+      logger.info(s"Received request: CreateSchema")
       db.run { userRepository.setupSchema() }
       context.stop(self)
 
     case DropSchema =>
-      logger.info(s"Received request: DropSchema)")
+      logger.info(s"Received request: DropSchema")
       db.run { userRepository.dropSchema() }
       context.stop(self)
 

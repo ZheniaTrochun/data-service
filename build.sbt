@@ -30,6 +30,7 @@ libraryDependencies ++= {
     "com.jason-goodwin"           %% "authentikat-jwt"                      % "0.4.5",
     "com.typesafe.scala-logging"  %% "scala-logging"                        % "3.1.0",
     "ch.qos.logback"               % "logback-classic"                      % "1.1.3",
+    "com.rabbitmq"                 % "amqp-client"                          % "3.3.4",
     "org.scalatest"               %% "scalatest"                            % "2.2.5"               % "test",
     "com.typesafe.akka"           %% "akka-testkit"                         % akkaVersion           % "test"
   )
