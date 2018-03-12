@@ -12,7 +12,7 @@ import spray.json._
 class MessageQueueActor extends Actor with AppConfig {
 
   private val exchangeName = config.getString("rabbitmq.exchange.name")
-  private val exchangeType = config.getString("rabbitmq.exchange.type")
+  private val exchangeType = config.getString("fanout")
 
   private val factory = new ConnectionFactory()
   factory.setUri(config.getString("rabbitmq.url"))
