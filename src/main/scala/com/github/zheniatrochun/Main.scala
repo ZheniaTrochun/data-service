@@ -9,7 +9,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 import akka.http.scaladsl.server.Directives._
 import akka.util.Timeout
-import com.github.zheniatrochun.actors.{DatabaseSupervisor, HttpActor}
+import com.github.zheniatrochun.actors.{DatabaseSupervisor, HttpActor, MessageQueueActor}
 import com.github.zheniatrochun.api.{AdminRoutes, BillRoutes, HealthRoutes, UserRoutes}
 import com.github.zheniatrochun.config.AppConfig
 import com.github.zheniatrochun.services.{AdminServiceImpl, BillServiceImpl, UserServiceImpl}
@@ -29,11 +29,12 @@ object Main extends App with AppConfig with HealthRoutes {
 
   val dbSupervisor = system.actorOf(Props(new DatabaseSupervisor(dbConfig)))
   val httpActor = system.actorOf(Props(new HttpActor()))
+  val mqActor = system.actorOf(Props(new MessageQueueActor()))
 
   val userService = new UserServiceImpl(dbSupervisor, httpActor)
   val userRoutes = new UserRoutes(userService)
 
-  val billService = new BillServiceImpl(dbSupervisor)
+  val billService = new BillServiceImpl(dbSupervisor, mqActor)
   val billRoutes = new BillRoutes(billService)
 
   val adminService = new AdminServiceImpl(dbSupervisor)

@@ -4,6 +4,7 @@ import akka.actor.{Actor, Terminated}
 import com.github.zheniatrochun.config.AppConfig
 import com.github.zheniatrochun.models.Bill
 import com.github.zheniatrochun.models.json.JsonProtocol._
+import com.github.zheniatrochun.models.requests.PublishBill
 import com.rabbitmq.client.ConnectionFactory
 import org.slf4j.LoggerFactory
 import spray.json._
@@ -24,7 +25,7 @@ class MessageQueueActor extends Actor with AppConfig {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   override def receive = {
-    case bill: Bill =>
+    case PublishBill(bill) =>
       logger.debug(s"Received bill for publishing to RabbitMQ bill = $bill")
       channel.basicPublish(exchangeName, "", null, bill.toJson.toString.getBytes())
       logger.debug("Publish successful! \\o/")
