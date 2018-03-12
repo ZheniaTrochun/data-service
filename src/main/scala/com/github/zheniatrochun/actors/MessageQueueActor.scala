@@ -24,6 +24,8 @@ class MessageQueueActor extends Actor with AppConfig {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
 
+  logger.debug(s"Hello there!")
+
   override def receive = {
     case PublishBill(bill) =>
       logger.debug(s"Received bill for publishing to RabbitMQ bill = $bill")
