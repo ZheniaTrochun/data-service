@@ -64,7 +64,7 @@ class BillActor(val db: JdbcProfile#Backend#Database, val billRepository: BillRe
 
     case FindAllBills =>
       logger.debug(s"Received request: FindAllBills")
-      pipe(db.run(billRepository.findAll())) to sender
+      pipe(db.run(billRepository.findAll())) to reqSender
       context.stop(self)
 
 
