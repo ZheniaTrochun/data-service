@@ -75,6 +75,7 @@ class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRe
       pipe(db.run(userRepository.update(user))) to sender
       context.stop(self)
 
+
     case CreateSchema =>
       logger.info(s"Received request: CreateSchema")
       db.run { userRepository.setupSchema() }
@@ -84,6 +85,7 @@ class UserActor(val db: JdbcProfile#Backend#Database, val userRepository: UserRe
       logger.info(s"Received request: DropSchema")
       db.run { userRepository.dropSchema() }
       context.stop(self)
+
 
     case _ =>
       logger.error(s"Received request of invalid type")
