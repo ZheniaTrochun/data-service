@@ -12,8 +12,8 @@ case class Bill(id: Option[Int], user: Int, date: Date, amount: Double, currency
 }
 
 class BillBuilder(date: Date, amount: Double, currency: String, tags: String) {
-  private var id: Option[Int] = None
-  private var user: Int = 0
+  var id: Option[Int] = None
+  var user: Int = 0
 
   def withUser(user: Int): this.type = {
     this.user = user

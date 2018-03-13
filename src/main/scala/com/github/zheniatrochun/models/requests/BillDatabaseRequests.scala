@@ -1,6 +1,6 @@
 package com.github.zheniatrochun.models.requests
 
-import com.github.zheniatrochun.models.Bill
+import com.github.zheniatrochun.models.{Bill, BillBuilder}
 
 sealed trait BillDatabaseRequest
 
@@ -11,6 +11,6 @@ case object FindAllBills extends BillDatabaseRequest
 
 case class DeleteBill(id: Int) extends BillDatabaseRequest
 
-case class CreateBill(bill: Bill) extends BillDatabaseRequest
+case class CreateBill(bill: Bill, username: String) extends BillDatabaseRequest
 
 case class UpdateBill(bill: Bill) extends BillDatabaseRequest

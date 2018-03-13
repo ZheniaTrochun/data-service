@@ -1,9 +1,10 @@
 package com.github.zheniatrochun.actors.db
 
-import akka.actor.{Actor, ActorSystem}
-import akka.pattern.pipe
+import akka.actor.{Actor, ActorRef, ActorSystem}
+import akka.pattern.{ask, pipe}
 import akka.util.Timeout
 import com.github.zheniatrochun.db.repositories.BillRepository
+import com.github.zheniatrochun.models.User
 import com.github.zheniatrochun.models.requests._
 import org.slf4j.LoggerFactory
 import slick.jdbc.JdbcProfile
@@ -11,9 +12,14 @@ import slick.jdbc.JdbcProfile
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class BillActor(val db: JdbcProfile#Backend#Database, val billRepository: BillRepository)
+class BillActor(val db: JdbcProfile#Backend#Database, val billRepository: BillRepository, val reqSender: ActorRef)
                (implicit val system: ActorSystem, implicit val timeout: Timeout)
   extends Actor {
+
+  def BillActor(db: JdbcProfile#Backend#Database, billRepository: BillRepository)
+              (implicit system: ActorSystem, timeout: Timeout): BillActor = {
+    new BillActor(db, billRepository, null)
+  }
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -33,10 +39,18 @@ class BillActor(val db: JdbcProfile#Backend#Database, val billRepository: BillRe
       pipe(db.run(billRepository.findAllByUserAndPage(user, page))) to sender
       context.stop(self)
 
-    case CreateBill(bill) =>
+    case CreateBill(bill, username) =>
       logger.debug(s"Received request: CreateBill($bill)")
-      pipe(db.run(billRepository.save(bill))) to sender
-      context.stop(self)
+
+      context.parent ? FindUserByName(username) foreach {
+        case Some(user: User) =>
+          pipe(db.run(billRepository.save(bill.copy(user = user.id.get)))) to reqSender
+          context.stop(self)
+
+        case _ =>
+          None
+          context.stop(self)
+      }
 
     case DeleteBill(id) =>
       logger.debug(s"Received request: DeleteBill($id)")
