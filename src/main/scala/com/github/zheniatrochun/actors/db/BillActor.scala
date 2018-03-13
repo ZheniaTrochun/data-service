@@ -16,9 +16,9 @@ class BillActor(val db: JdbcProfile#Backend#Database, val billRepository: BillRe
                (implicit val system: ActorSystem, implicit val timeout: Timeout)
   extends Actor {
 
-  def BillActor(db: JdbcProfile#Backend#Database, billRepository: BillRepository)
-              (implicit system: ActorSystem, timeout: Timeout): BillActor = {
-    new BillActor(db, billRepository, null)
+  def this(db: JdbcProfile#Backend#Database, billRepository: BillRepository)
+              (implicit system: ActorSystem, timeout: Timeout) = {
+    this(db, billRepository, null)
   }
 
   val logger = LoggerFactory.getLogger(this.getClass)
