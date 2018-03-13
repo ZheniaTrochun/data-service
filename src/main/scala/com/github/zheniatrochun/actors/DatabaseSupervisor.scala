@@ -33,7 +33,7 @@ class DatabaseSupervisor (val dbConfig: DatabaseConfig[JdbcProfile])
 
   override def receive = {
     case req: BillDatabaseRequest =>
-      context.actorOf(Props(new BillActor(db, billRepository, sender))) ! req
+      context.actorOf(Props(new BillActor(db, billRepository))) forward req
 
     case req: UserDatabaseRequest =>
       pipe(context.actorOf(Props(new UserActor(db, userRepository))) ? req) to sender

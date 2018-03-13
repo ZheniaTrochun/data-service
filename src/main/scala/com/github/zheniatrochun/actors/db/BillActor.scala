@@ -12,14 +12,9 @@ import slick.jdbc.JdbcProfile
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
-class BillActor(val db: JdbcProfile#Backend#Database, val billRepository: BillRepository, val reqSender: ActorRef)
+class BillActor(val db: JdbcProfile#Backend#Database, val billRepository: BillRepository)
                (implicit val system: ActorSystem, implicit val timeout: Timeout)
   extends Actor {
-
-  def this(db: JdbcProfile#Backend#Database, billRepository: BillRepository)
-              (implicit system: ActorSystem, timeout: Timeout) = {
-    this(db, billRepository, null)
-  }
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
@@ -44,7 +39,7 @@ class BillActor(val db: JdbcProfile#Backend#Database, val billRepository: BillRe
 
       context.parent ? FindUserByName(username) foreach {
         case Some(user: User) =>
-          pipe(db.run(billRepository.save(bill.copy(user = user.id.get)))) to reqSender
+          pipe(db.run(billRepository.save(bill.copy(user = user.id.get)))) to sender
           context.stop(self)
 
         case _ =>
@@ -64,7 +59,7 @@ class BillActor(val db: JdbcProfile#Backend#Database, val billRepository: BillRe
 
     case FindAllBills =>
       logger.debug(s"Received request: FindAllBills")
-      pipe(db.run(billRepository.findAll())) to reqSender
+      pipe(db.run(billRepository.findAll())) to sender
       context.stop(self)
 
 
