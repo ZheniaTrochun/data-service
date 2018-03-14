@@ -16,7 +16,7 @@ class BillRoutes(val billService: BillService)
   extends RouteUtils with JwtUtils {
 
   val routes = {
-    path("bills") {
+    pathPrefix("bills") {
       post {
         entity(as[BillDto]) { dto =>
           validateJwt {
