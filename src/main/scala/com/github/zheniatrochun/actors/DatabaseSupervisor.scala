@@ -1,11 +1,11 @@
 package com.github.zheniatrochun.actors
 
 import akka.actor.{Actor, ActorSystem, Props}
-import akka.pattern.{ask, pipe}
 import akka.util.Timeout
 import com.github.zheniatrochun.actors.db.{BillActor, UserActor}
 import com.github.zheniatrochun.db.repositories.{BillRepository, UserRepository}
 import com.github.zheniatrochun.models.requests.{BillDatabaseRequest, GeneralDatabaseRequests, UserDatabaseRequest}
+import com.github.zheniatrochun.utils.ActorMethodShortcuts
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
@@ -14,7 +14,7 @@ import scala.language.postfixOps
 
 class DatabaseSupervisor (val dbConfig: DatabaseConfig[JdbcProfile])
   (implicit val system: ActorSystem, implicit val timeout: Timeout)
-    extends Actor {
+    extends Actor with ActorMethodShortcuts {
 
   import akka.actor.OneForOneStrategy
   import akka.actor.SupervisorStrategy._
@@ -33,10 +33,10 @@ class DatabaseSupervisor (val dbConfig: DatabaseConfig[JdbcProfile])
 
   override def receive = {
     case req: BillDatabaseRequest =>
-      context.actorOf(Props(new BillActor(db, billRepository))) forward req
+      context.actorOf(Props(new BillActor(db, billRepository))) ~> req
 
     case req: UserDatabaseRequest =>
-      context.actorOf(Props(new UserActor(db, userRepository))) forward req
+      context.actorOf(Props(new UserActor(db, userRepository))) ~> req
 
     case req: GeneralDatabaseRequests =>
       context.actorOf(Props(new UserActor(db, userRepository))) ! req
