@@ -33,24 +33,6 @@ class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef)
   val logger = LoggerFactory.getLogger(this.getClass)
 
   override def create(dto: BillDto, username: String): Future[Option[Int]] = {
-//    dbActor ? FindUserByName(username) flatMap {
-//      case Some(user: User) =>
-//        dbActor ? CreateBill(BillBuilder(dto).withUser(user.id.get).build()) flatMap {
-//          case bill: Bill =>
-//            logger.debug(s"Bill creation OK, bill = $bill")
-////            publish to mq for statistics update
-//            mqActor ! PublishBill(bill)
-//            Future.successful(Some(bill.id.get))
-//
-//          case _ =>
-//            logger.error(s"Error in actor model")
-//            Future.failed(new InternalError())
-//        }
-//
-//      case _ =>
-//        logger.error(s"Error in actor model")
-//        Future.failed(new InternalError())
-//    }
 
     dbActor ? CreateBill(BillBuilder(dto).build(), username) flatMap {
       case bill: Bill =>

@@ -36,7 +36,7 @@ class DatabaseSupervisor (val dbConfig: DatabaseConfig[JdbcProfile])
       context.actorOf(Props(new BillActor(db, billRepository))) forward req
 
     case req: UserDatabaseRequest =>
-      pipe(context.actorOf(Props(new UserActor(db, userRepository))) ? req) to sender
+      context.actorOf(Props(new UserActor(db, userRepository))) forward req
 
     case req: GeneralDatabaseRequests =>
       context.actorOf(Props(new UserActor(db, userRepository))) ! req
