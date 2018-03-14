@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory
 import slick.jdbc.JdbcProfile
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 
 class BillActor(val db: JdbcProfile#Backend#Database, val billRepository: BillRepository)
@@ -37,15 +38,19 @@ class BillActor(val db: JdbcProfile#Backend#Database, val billRepository: BillRe
     case CreateBill(bill, username) =>
       logger.debug(s"Received request: CreateBill($bill)")
 
-      context.parent ? FindUserByName(username) foreach {
-        case Some(user: User) =>
-          pipe(db.run(billRepository.save(bill.copy(user = user.id.get)))) to sender
-          context.stop(self)
+      pipe {
+        context.parent ? FindUserByName(username) flatMap {
+          case Some(user: User) =>
+            logger.debug(s"User found, saving bill")
+            db.run(billRepository.save(bill.copy(user = user.id.get)))
 
-        case _ =>
-          None
-          context.stop(self)
-      }
+          case _ =>
+            logger.warn(s"User not found! :(")
+            Future.successful(None)
+        }
+      } to sender
+
+      context.stop(self)
 
     case DeleteBill(id) =>
       logger.debug(s"Received request: DeleteBill($id)")
