@@ -4,7 +4,7 @@ import java.sql.Date
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import com.github.zheniatrochun.models.dto.BillDto
-import com.github.zheniatrochun.models.{Bill, User}
+import com.github.zheniatrochun.models.{Bill, User, Wallet}
 import org.joda.time.DateTime
 import org.joda.time.format.{DateTimeFormatter, ISODateTimeFormat}
 import spray.json.{DefaultJsonProtocol, DeserializationException, JsString, JsValue, RootJsonFormat}
@@ -37,4 +37,5 @@ object JsonProtocol extends DefaultJsonProtocol with SprayJsonSupport {
   implicit val userFormat = jsonFormat3(User)
   implicit val billFormat = jsonFormat6(Bill)
   implicit val billDtoFormat = jsonFormat4(BillDto)
+  implicit val walletFormat = jsonFormat4(Wallet)
 }

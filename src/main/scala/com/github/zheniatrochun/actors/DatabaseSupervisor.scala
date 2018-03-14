@@ -2,9 +2,9 @@ package com.github.zheniatrochun.actors
 
 import akka.actor.{Actor, ActorSystem, Props}
 import akka.util.Timeout
-import com.github.zheniatrochun.actors.db.{BillActor, UserActor}
-import com.github.zheniatrochun.db.repositories.{BillRepository, UserRepository}
-import com.github.zheniatrochun.models.requests.{BillDatabaseRequest, GeneralDatabaseRequests, UserDatabaseRequest}
+import com.github.zheniatrochun.actors.db.{BillActor, UserActor, WalletActor}
+import com.github.zheniatrochun.db.repositories.{BillRepository, UserRepository, WalletRepository}
+import com.github.zheniatrochun.models.requests.{BillDatabaseRequest, GeneralDatabaseRequests, UserDatabaseRequest, WalletDatabaseRequest}
 import com.github.zheniatrochun.utils.ActorMethodShortcuts
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
@@ -30,6 +30,7 @@ class DatabaseSupervisor (val dbConfig: DatabaseConfig[JdbcProfile])
   val db = dbConfig.db
   val userRepository = new UserRepository(dbConfig.profile)
   val billRepository = new BillRepository(dbConfig.profile)
+  val walletRepository = new WalletRepository(dbConfig.profile)
 
   override def receive = {
     case req: BillDatabaseRequest =>
@@ -38,9 +39,13 @@ class DatabaseSupervisor (val dbConfig: DatabaseConfig[JdbcProfile])
     case req: UserDatabaseRequest =>
       context.actorOf(Props(new UserActor(db, userRepository))) ~> req
 
+    case req: WalletDatabaseRequest =>
+      context.actorOf(Props(new WalletActor(db, walletRepository))) ~> req
+
     case req: GeneralDatabaseRequests =>
       context.actorOf(Props(new UserActor(db, userRepository))) ! req
       context.actorOf(Props(new BillActor(db, billRepository))) ! req
+      context.actorOf(Props(new WalletActor(db, walletRepository))) ! req
 
     case _ =>
       sender ! new InternalError("Invalid request to supervisor!")
