@@ -23,10 +23,10 @@ class WalletServiceImpl(dbActor: ActorRef)
 
   override def create(wallet: Wallet): Future[Option[Int]] = {
     dbActor ? CreateWallet(wallet) flatMap {
-      case Some(wallet: Wallet) =>
+      case wallet: Wallet =>
         Future.successful(wallet.id)
 
-      case None =>
+      case _ =>
         Future.successful(None)
     }
   }
