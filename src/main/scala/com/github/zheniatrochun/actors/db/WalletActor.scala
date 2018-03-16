@@ -8,6 +8,8 @@ import com.github.zheniatrochun.models.requests._
 import org.slf4j.LoggerFactory
 import slick.jdbc.JdbcProfile
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 
 class WalletActor(val db: JdbcProfile#Backend#Database, val walletRepository: WalletRepository)
                  (implicit val timeout: Timeout) extends Actor {

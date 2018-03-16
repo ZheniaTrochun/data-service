@@ -2,9 +2,11 @@ package com.github.zheniatrochun.services
 
 import akka.actor.ActorRef
 import akka.pattern.ask
+import akka.util.Timeout
 import com.github.zheniatrochun.models.Wallet
 import com.github.zheniatrochun.models.requests._
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 trait WalletService {
@@ -16,7 +18,8 @@ trait WalletService {
   def getAll(): Future[Seq[Wallet]]
 }
 
-class WalletServiceImpl(dbActor: ActorRef) extends WalletService {
+class WalletServiceImpl(dbActor: ActorRef)
+                       (implicit val timeout: Timeout) extends WalletService {
 
   override def create(wallet: Wallet): Future[Option[Int]] = {
     dbActor ? CreateWallet(wallet) flatMap {
