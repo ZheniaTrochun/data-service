@@ -67,7 +67,7 @@ class WalletServiceImpl(dbActor: ActorRef)
         Future.successful(res)
 
       case _ =>
-        Future.failed(RuntimeException)
+        Future.failed(new RuntimeException())
     }
   }
 
@@ -77,7 +77,7 @@ class WalletServiceImpl(dbActor: ActorRef)
         Future.successful(res)
 
       case _ =>
-        Future.failed(RuntimeException)
+        Future.failed(new RuntimeException())
     }
   }
 }
