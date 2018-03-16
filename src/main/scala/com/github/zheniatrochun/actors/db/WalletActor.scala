@@ -21,14 +21,15 @@ class WalletActor(val db: JdbcProfile#Backend#Database, val walletRepository: Wa
   override def receive = {
     case CreateWallet(walletDto, username) =>
       logger.info(s"Received request: CreateWallet($walletDto, $username)")
-      context.parent ? FindUserByName(username) foreach  {
+      context.parent ? FindUserByName(username) flatMap {
         case Some(user: User) =>
           val wallet = WalletBuilder(walletDto).withUser(user.id.get).build()
-          pipe(db.run(walletRepository.save(wallet))) to sender
+          db.run(walletRepository.save(wallet))
 
         case None =>
-          pipe(Future.successful(None)) to sender
-      }
+          Future.successful(None)
+      } pipeTo sender
+
       context.stop(self)
 
     case FindWalletById(id) =>
