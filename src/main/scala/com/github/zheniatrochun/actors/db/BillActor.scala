@@ -44,6 +44,7 @@ class BillActor(val db: JdbcProfile#Backend#Database, val billRepository: BillRe
             logger.debug(s"User found, saving bill")
             bill.wallet foreach { wallet: Int =>
               logger.debug(s"wallet = $wallet")
+              logger.debug(s"parent = ${context.parent}")
               context.parent ! UpdateWalletBalance(wallet, bill.amount)
             }
 
