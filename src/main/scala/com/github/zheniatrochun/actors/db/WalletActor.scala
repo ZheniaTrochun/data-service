@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
 import slick.jdbc.JdbcProfile
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.language.postfixOps
 
@@ -62,9 +62,10 @@ class WalletActor(val db: JdbcProfile#Backend#Database, val walletRepository: Wa
 
     case UpdateWalletBalance(wallet, amount) =>
       logger.debug(s"Received request: UpdateWalletBalance($wallet, $amount)")
-      db.run(walletRepository.findOne(wallet)).result(10 second) foreach { w: Wallet =>
-        db.run(walletRepository.update(w.copy(amount = w.amount - amount)))
-      }
+      Await.result(
+        db.run(walletRepository.findOne(wallet)), 10 second) foreach { w: Wallet =>
+          db.run(walletRepository.update(w.copy(amount = w.amount - amount)))
+        }
 
 
     case CreateSchema =>
