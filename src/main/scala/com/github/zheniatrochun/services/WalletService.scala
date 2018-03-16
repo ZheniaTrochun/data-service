@@ -4,13 +4,14 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import akka.util.Timeout
 import com.github.zheniatrochun.models.Wallet
+import com.github.zheniatrochun.models.dto.WalletDto
 import com.github.zheniatrochun.models.requests._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 trait WalletService {
-  def create(wallet: Wallet): Future[Option[Int]]
+  def create(wallet: WalletDto, user: String): Future[Option[Int]]
   def getById(id: Int): Future[Option[Wallet]]
   def update(wallet: Wallet): Future[Option[Wallet]]
   def delete(id: Int): Future[Boolean]
@@ -21,8 +22,8 @@ trait WalletService {
 class WalletServiceImpl(dbActor: ActorRef)
                        (implicit val timeout: Timeout) extends WalletService {
 
-  override def create(wallet: Wallet): Future[Option[Int]] = {
-    dbActor ? CreateWallet(wallet) flatMap {
+  override def create(wallet: WalletDto, user: String): Future[Option[Int]] = {
+    dbActor ? CreateWallet(wallet, user) flatMap {
       case wallet: Wallet =>
         Future.successful(wallet.id)
 

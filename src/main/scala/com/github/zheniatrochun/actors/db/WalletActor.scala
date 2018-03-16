@@ -1,14 +1,16 @@
 package com.github.zheniatrochun.actors.db
 
 import akka.actor.Actor
-import akka.pattern.pipe
+import akka.pattern.{ask, pipe}
 import akka.util.Timeout
 import com.github.zheniatrochun.db.repositories.WalletRepository
+import com.github.zheniatrochun.models.{User, WalletBuilder}
 import com.github.zheniatrochun.models.requests._
 import org.slf4j.LoggerFactory
 import slick.jdbc.JdbcProfile
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 
 class WalletActor(val db: JdbcProfile#Backend#Database, val walletRepository: WalletRepository)
@@ -17,9 +19,16 @@ class WalletActor(val db: JdbcProfile#Backend#Database, val walletRepository: Wa
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   override def receive = {
-    case CreateWallet(wallet) =>
-      logger.info(s"Received request: CreateWallet($wallet)")
-      pipe(db.run(walletRepository.save(wallet))) to sender
+    case CreateWallet(walletDto, username) =>
+      logger.info(s"Received request: CreateWallet($walletDto, $username)")
+      context.parent ? FindUserByName(username) foreach  {
+        case Some(user: User) =>
+          val wallet = WalletBuilder(walletDto).withUser(user.id.get).build()
+          pipe(db.run(walletRepository.save(wallet))) to sender
+
+        case None =>
+          pipe(Future.successful(None)) to sender
+      }
       context.stop(self)
 
     case FindWalletById(id) =>
