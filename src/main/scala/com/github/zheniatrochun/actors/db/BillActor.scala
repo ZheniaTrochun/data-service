@@ -42,6 +42,8 @@ class BillActor(val db: JdbcProfile#Backend#Database, val billRepository: BillRe
         context.parent ? FindUserByName(username) flatMap {
           case Some(user: User) =>
             logger.debug(s"User found, saving bill")
+            bill.wallet.foreach(context.parent ! UpdateWalletBalance(_, bill.amount))
+
             db.run(billRepository.save(bill.copy(user = user.id.get)))
 
           case _ =>

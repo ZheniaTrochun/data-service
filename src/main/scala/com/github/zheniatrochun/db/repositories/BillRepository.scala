@@ -51,7 +51,8 @@ class BillRepository(override val driver: JdbcProfile) extends Repository[Bill, 
     def amount = column[Double]("amount")
     def currency = column[String]("currency")
     def tags = column[String]("tags")
+    def wallet = column[Option[Int]]("wallet")
 
-    override def * = (id.?, user, date, amount, currency, tags) <> ((Bill.apply _).tupled, Bill.unapply)
+    override def * = (id.?, user, date, amount, currency, tags, wallet) <> ((Bill.apply _).tupled, Bill.unapply)
   }
 }
