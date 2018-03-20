@@ -38,11 +38,14 @@ class BillActor(val db: JdbcProfile#Backend#Database, val billRepository: BillRe
     case CreateBill(bill, username) =>
       logger.debug(s"Received request: CreateBill($bill)")
 
+      val parent = context.parent
       pipe {
-        context.parent ? FindUserByName(username) flatMap {
+        parent ? FindUserByName(username) flatMap {
           case Some(user: User) =>
             logger.debug(s"User found, saving bill")
-            bill.wallet.foreach(context.parent ! UpdateWalletBalance(_, bill.amount))
+            bill.wallet foreach { wallet: Int =>
+              parent ! UpdateWalletBalance(wallet, bill.amount)
+            }
 
             db.run(billRepository.save(bill.copy(user = user.id.get)))
 
