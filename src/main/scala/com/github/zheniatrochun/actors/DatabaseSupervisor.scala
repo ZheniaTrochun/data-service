@@ -6,10 +6,12 @@ import com.github.zheniatrochun.actors.db.{BillActor, UserActor, WalletActor}
 import com.github.zheniatrochun.db.repositories.{BillRepository, UserRepository, WalletRepository}
 import com.github.zheniatrochun.models.requests.{BillDatabaseRequest, GeneralDatabaseRequests, UserDatabaseRequest, WalletDatabaseRequest}
 import com.github.zheniatrochun.utils.ActorMethodShortcuts
+import org.slf4j.LoggerFactory
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.TimeoutException
 import scala.language.postfixOps
 
 class DatabaseSupervisor (val dbConfig: DatabaseConfig[JdbcProfile])
@@ -21,10 +23,15 @@ class DatabaseSupervisor (val dbConfig: DatabaseConfig[JdbcProfile])
 
   import scala.concurrent.duration._
 
+  val logger = LoggerFactory.getLogger(this.getClass)
+
   override val supervisorStrategy =
     OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
-      case t =>
-        super.supervisorStrategy.decider.applyOrElse(t, (_: Any) => Restart)
+      case t: TimeoutException =>
+        logger.warn("Timeout exception occurred!")
+        Stop
+      case _ =>
+        Stop
     }
 
   val db = dbConfig.db
