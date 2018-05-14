@@ -48,9 +48,12 @@ class BillRoutes(val billService: BillService)
             billService.getById(id).toFutureJson
           }
         } ~
-        headerValueByName("user") { user =>
-          completeWithFuture {
-            billService.getAllByUser(user toInt).toFutureJson
+        validateJwt {
+          extractUser {user =>
+            completeWithFuture {
+              billService.getAllByUser(user toInt).toFutureJson
+            }
+
           }
         } ~
         path("all") {
