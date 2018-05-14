@@ -23,6 +23,8 @@ trait BillService {
 
   def getAllByUser(User: Int): Future[List[Bill]]
 
+  def getAllByUser(User: String): Future[List[Bill]]
+
   def getAll(): Future[List[Bill]]
 }
 
@@ -89,6 +91,18 @@ class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef)
 
   override def getAllByUser(user: Int) = {
     dbActor ? FindAllBillsByUser(user) flatMap {
+      case res: Seq[Bill] =>
+        logger.debug(s"Bill getting all by user($user) OK, length = ${res.length}")
+        Future.successful(res toList)
+
+      case _ =>
+        logger.error(s"Error in actor model")
+        Future.failed(new InternalError())
+    }
+  }
+
+  override def getAllByUser(user: String) = {
+    dbActor ? FindAllBillsByUsername(user) flatMap {
       case res: Seq[Bill] =>
         logger.debug(s"Bill getting all by user($user) OK, length = ${res.length}")
         Future.successful(res toList)
