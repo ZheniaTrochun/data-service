@@ -16,6 +16,7 @@ trait WalletService {
   def update(wallet: Wallet): Future[Option[Wallet]]
   def delete(id: Int): Future[Boolean]
   def getAllByUser(user: Int): Future[Seq[Wallet]]
+  def getAllByUsername(user: String): Future[Seq[Wallet]]
   def getAll(): Future[Seq[Wallet]]
 }
 
@@ -64,6 +65,16 @@ class WalletServiceImpl(dbActor: ActorRef)
 
   override def getAllByUser(user: Int) = {
     dbActor ? FindAllWalletsByUser(user) flatMap {
+      case res: Seq[Wallet] =>
+        Future.successful(res)
+
+      case _ =>
+        Future.failed(new RuntimeException())
+    }
+  }
+
+  override def getAllByUsername(user: String) = {
+    dbActor ? FindAllWalletsByUsername(user) flatMap {
       case res: Seq[Wallet] =>
         Future.successful(res)
 

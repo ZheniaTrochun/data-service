@@ -54,6 +54,18 @@ class WalletActor(val db: JdbcProfile#Backend#Database, val walletRepository: Wa
       pipe(db.run(walletRepository.findAllByUser(user))) to sender
       context.stop(self)
 
+    case FindAllWalletsByUsername(username) =>
+      logger.info(s"Received request: FindAllWalletsByUsername($username)")
+      context.parent ? FindUserByName(username) flatMap {
+        case Some(user: User) =>
+          db.run(walletRepository.findAllByUser(user.id.get))
+
+        case None =>
+          Future.successful(None)
+      } pipeTo sender
+
+      context.stop(self)
+
     case FindAllWallets =>
       logger.info(s"Received request: FindAllWallets")
       pipe(db.run(walletRepository.findAll())) to sender

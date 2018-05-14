@@ -31,6 +31,20 @@ class WalletRoutes(val walletService: WalletService) extends RouteUtils with Jwt
           completeWithFuture {
             walletService.getAll() toFutureJson
           }
+        } ~
+        parameter('id.as[Int]) { id =>
+          validateJwt {
+            completeWithFuture {
+              walletService.getById(id) toFutureJson
+            }
+          }
+        } ~
+        validateJwt {
+          extractUser { user: String =>
+            completeWithFuture {
+              walletService.getAllByUsername(user) toFutureJson
+            }
+          }
         }
       }
     }
