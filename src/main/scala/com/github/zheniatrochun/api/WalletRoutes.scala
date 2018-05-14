@@ -19,8 +19,8 @@ class WalletRoutes(val walletService: WalletService) extends RouteUtils with Jwt
         entity(as[WalletDto]) { walletDto: WalletDto =>
           validateJwt {
             extractUser { user: String =>
-              completeWithFuture {
-                walletService.create(walletDto, user) toFutureJson
+              completeWithFutureId {
+                walletService.create(walletDto, user)
               }
             }
           }

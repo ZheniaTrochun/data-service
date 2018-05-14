@@ -63,6 +63,28 @@ trait RouteUtils extends AppConfig {
     }
   }
 
+  def completeWithFutureId(f: => Future[Option[Int]]): Route = {
+    onComplete(f) {
+
+      case Success(res) =>
+        res match {
+          case Some(id) =>
+            val response = HttpResponse(StatusCodes.OK, entity = buildEntity(s"""{id:$id}""".toJson))
+            complete(response)
+
+          case None =>
+            val response = HttpResponse(StatusCodes.BadRequest)
+            complete(response)
+        }
+
+      case Failure(err) =>
+        logger.error("Error occurred! ATTENTION!", err)
+        val response = HttpResponse(StatusCodes.InternalServerError, entity = HttpEntity(err.getMessage))
+        complete(response)
+    }
+  }
+
+
   def withSertificate(action: => Route): Route = {
     headerValueByName("Sertificate") { sertificate =>
 
