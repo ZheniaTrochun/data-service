@@ -48,7 +48,7 @@ class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef, val httpActo
 //        mqActor ! PublishBill(bill)
         httpActor ! SendRequestToStatistics(Promise(),
           RequestBuilding.Post(s"/statistics/update",
-            StatsUpdate(username, dto.amount, dto.tags.getOrElse("-")).toJson))
+            StatsUpdate(username, dto.amount, bill.tags).toJson))
         Future.successful(Some(bill.id.get))
 
       case _ =>
