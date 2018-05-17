@@ -5,6 +5,7 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.Directives._
 import authentikat.jwt.JsonWebToken
 import com.github.zheniatrochun.config.AppConfig
+import io.jsonwebtoken.Jwts
 
 trait JwtUtils extends AppConfig {
 
@@ -40,7 +41,12 @@ trait JwtUtils extends AppConfig {
   }
 
   private def validateJwtOrElse[T](jwt: String)(default: T)(action: => T): T = {
-    if (JsonWebToken.validate(jwt, secret)) {
+    if (try {
+          Jwts.parser.setSigningKey(secret).parseClaimsJws(jwt)
+          true
+        } catch {
+          case _ => false
+        }) {
       action
     } else {
       default
@@ -48,25 +54,16 @@ trait JwtUtils extends AppConfig {
   }
 
   private def checkUserOrElse[T](jwt: String, user: String)(default: T)(action: => T): T = {
-    jwt match {
-      case JsonWebToken(_, claims, _) =>
-        if (claims.asSimpleMap.get.getOrElse("user", "") == user) {
-          action
-        } else {
-          default
-        }
-      case _ =>
-        default
-    }
+
+    Option(Jwts.parser().setSigningKey(secret).parseClaimsJws(jwt).getBody.getSubject)
+      .filter(u => u == user)
+      .map(_ => action)
+      .getOrElse(default)
+
   }
 
   private def getUserFromJwt(jwt: String): Option[String] = {
-    jwt match {
-      case JsonWebToken(_, claims, _) =>
-        claims.asSimpleMap.get.get("user")
-      case _ =>
-        None
-    }
+    Option(Jwts.parser().setSigningKey(secret).parseClaimsJws(jwt).getBody.getSubject)
   }
 
 }
