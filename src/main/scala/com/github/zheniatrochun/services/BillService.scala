@@ -133,5 +133,5 @@ class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef, val httpActo
     }
   }
 }
-case class StatsUpdate(user: String, data: Double, tad: String)
+case class StatsUpdate(user: String, data: Double, tag: String)
 
