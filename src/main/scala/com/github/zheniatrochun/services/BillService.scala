@@ -1,14 +1,19 @@
 package com.github.zheniatrochun.services
 
 import akka.actor.ActorRef
+import akka.http.javadsl.model.RequestEntity
+import akka.http.scaladsl.client.RequestBuilding
+import akka.http.scaladsl.model.HttpRequest
 import com.github.zheniatrochun.models.requests._
 import com.github.zheniatrochun.models.{Bill, BillBuilder, User}
 import akka.pattern.ask
 import akka.util.Timeout
 import com.github.zheniatrochun.models.dto.BillDto
+import com.github.zheniatrochun.models.json.JsonProtocol._
+import spray.json._
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.Future
+import scala.concurrent.{Future, Promise}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 
@@ -23,10 +28,12 @@ trait BillService {
 
   def getAllByUser(User: Int): Future[List[Bill]]
 
+  def getAllByUser(User: String): Future[List[Bill]]
+
   def getAll(): Future[List[Bill]]
 }
 
-class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef)
+class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef, val httpActor: ActorRef)
                      (implicit val timeout: Timeout)
   extends BillService {
 
@@ -38,7 +45,10 @@ class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef)
       case bill: Bill =>
         logger.debug(s"Bill creation OK, bill = $bill")
 //            publish to mq for statistics update
-        mqActor ! PublishBill(bill)
+//        mqActor ! PublishBill(bill)
+        httpActor ! SendRequestToStatistics(Promise(),
+          RequestBuilding.Post(s"/statistics/update",
+            StatsUpdate(username, dto.amount, dto.tags.getOrElse("-")).toJson))
         Future.successful(Some(bill.id.get))
 
       case _ =>
@@ -99,6 +109,18 @@ class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef)
     }
   }
 
+  override def getAllByUser(user: String) = {
+    dbActor ? FindAllBillsByUsername(user) flatMap {
+      case res: Seq[Bill] =>
+        logger.debug(s"Bill getting all by user($user) OK, length = ${res.length}")
+        Future.successful(res toList)
+
+      case _ =>
+        logger.error(s"Error in actor model")
+        Future.failed(new InternalError())
+    }
+  }
+
   override def getAll() = {
     dbActor ? FindAllBills flatMap {
       case res: Seq[Bill] =>
@@ -111,3 +133,5 @@ class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef)
     }
   }
 }
+case class StatsUpdate(user: String, data: Double, tad: String)
+

@@ -30,6 +30,17 @@ class BillActor(val db: JdbcProfile#Backend#Database, val billRepository: BillRe
       pipe(db.run(billRepository.findAllByUser(user))) to sender
       context.stop(self)
 
+    case FindAllBillsByUsername(username) =>
+      logger.debug(s"Received request: FindBillsByUsername($username)")
+      context.parent ? FindUserByName(username) flatMap {
+        case Some(user: User) =>
+          db.run(billRepository.findAllByUser(user.id.get))
+
+        case None =>
+          Future.successful(None)
+      } pipeTo sender
+      context.stop(self)
+
     case FindAllBillsByUserPage(user, page) =>
       logger.debug(s"Received request: FindBillsByUser($user) page - $page")
       pipe(db.run(billRepository.findAllByUserAndPage(user, page))) to sender

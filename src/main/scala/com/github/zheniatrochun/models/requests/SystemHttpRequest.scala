@@ -9,3 +9,5 @@ sealed trait SystemHttpRequest
 case class SendRequestToAuth(promise: Promise[HttpResponse], request: HttpRequest) extends SystemHttpRequest
 
 case class SendRequestToData(promise: Promise[HttpResponse], request: HttpRequest) extends SystemHttpRequest
+
+case class SendRequestToStatistics(promise: Promise[HttpResponse], request: HttpRequest) extends SystemHttpRequest

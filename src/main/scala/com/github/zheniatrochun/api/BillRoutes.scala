@@ -51,7 +51,7 @@ class BillRoutes(val billService: BillService)
         validateJwt {
           extractUser {user =>
             completeWithFuture {
-              billService.getAllByUser(user toInt).toFutureJson
+              billService.getAllByUser(user).toFutureJson
             }
 
           }

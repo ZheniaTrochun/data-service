@@ -34,7 +34,7 @@ object Main extends App with AppConfig with HealthRoutes {
   val userService = new UserServiceImpl(dbSupervisor, httpActor)
   val userRoutes = new UserRoutes(userService)
 
-  val billService = new BillServiceImpl(dbSupervisor, mqActor)
+  val billService = new BillServiceImpl(dbSupervisor, mqActor, httpActor)
   val billRoutes = new BillRoutes(billService)
 
   val adminService = new AdminServiceImpl(dbSupervisor)
