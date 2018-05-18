@@ -6,7 +6,7 @@ import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.stream.Materializer
 import akka.stream.scaladsl.{Flow, Sink, Source}
 import com.github.zheniatrochun.config.AppConfig
-import com.github.zheniatrochun.models.requests.{SendRequestToAuth, SendRequestToData, SendRequestToStatistics}
+import com.github.zheniatrochun.models.requests.{AskRate, SendRequestToAuth, SendRequestToData, SendRequestToStatistics}
 import org.slf4j.LoggerFactory
 
 import scala.language.postfixOps
@@ -18,6 +18,9 @@ class HttpActor(implicit val system: ActorSystem, implicit val mat: Materializer
 
   lazy val dataServiceApiConnectionFlow: Flow[HttpRequest, HttpResponse, Any] =
     Http().outgoingConnection(config.getString("services.data-service.host"))
+
+  lazy val currencyApiConnectionFlow: Flow[HttpRequest, HttpResponse, Any] =
+    Http().outgoingConnection("free.currencyconverterapi.com")
 
   lazy val authServiceApiConnectionFlow: Flow[HttpRequest, HttpResponse, Any] =
     Http().outgoingConnection(config.getString("services.auth-service.host"))
@@ -63,6 +66,19 @@ class HttpActor(implicit val system: ActorSystem, implicit val mat: Materializer
           logger.warn(s"statistics response failed with ex = $ex")
           promise.failure(ex)
       }
+
+    case AskRate(promise, request) =>
+      logger.debug(s"Sending request to currency converter req = $request")
+      Source.single(request).via(currencyApiConnectionFlow).runWith(Sink.head) onComplete {
+        case Success(resp: HttpResponse) =>
+          logger.debug(s"converter responded success resp = $resp")
+          promise.success(resp)
+
+        case Failure(ex) =>
+          logger.warn(s"converter response failed with ex = $ex")
+          promise.failure(ex)
+      }
+
 
     case _ =>
       logger.error("Invalid request type!")

@@ -11,3 +11,5 @@ case class SendRequestToAuth(promise: Promise[HttpResponse], request: HttpReques
 case class SendRequestToData(promise: Promise[HttpResponse], request: HttpRequest) extends SystemHttpRequest
 
 case class SendRequestToStatistics(promise: Promise[HttpResponse], request: HttpRequest) extends SystemHttpRequest
+
+case class AskRate(promise: Promise[HttpResponse], request: HttpRequest) extends SystemHttpRequest
