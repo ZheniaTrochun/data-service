@@ -8,6 +8,7 @@ import akka.http.scaladsl.unmarshalling.Unmarshal
 import com.github.zheniatrochun.models.requests._
 import com.github.zheniatrochun.models.{Bill, BillBuilder, User}
 import akka.pattern.ask
+import akka.stream.Materializer
 import akka.util.Timeout
 import com.github.zheniatrochun.models.dto.BillDto
 import com.github.zheniatrochun.models.json.JsonProtocol._
@@ -35,7 +36,7 @@ trait BillService {
 }
 
 class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef, val httpActor: ActorRef)
-                     (implicit val timeout: Timeout)
+                     (implicit val timeout: Timeout, implicit val mat: Materializer)
   extends BillService {
 
   val logger = LoggerFactory.getLogger(this.getClass)
@@ -48,6 +49,8 @@ class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef, val httpActo
       Unmarshal(res.entity).to[String].flatMap { json =>
         val str = json.split(":")(2)
         val rate = str.substring(0, str.length - 2) toDouble
+
+        logger.info(s"Rate = $rate")
 
         val dtoNew = BillDto(dto.date, dto.amount * rate, dto.currency, dto.tags, dto.wallet)
 
