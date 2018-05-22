@@ -15,7 +15,7 @@ import com.github.zheniatrochun.models.json.JsonProtocol._
 import spray.json._
 import org.slf4j.LoggerFactory
 
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.{Await, Future, Promise}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 
@@ -46,7 +46,7 @@ class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef, val httpActo
 //    todo refactor
     httpActor ? AskRate(RequestBuilding.Get(s"/api/v5/convert?q=${dto.currency}_USD&compact=y")) flatMap {
       case resp: HttpResponse =>
-        val raw = Unmarshal(resp.entity).to[String].result(timeout.duration).split(":")(2)
+        val raw = Await.result(Unmarshal(resp.entity).to[String], timeout.duration).split(":")(2)
         val rate = raw.substring(0, raw.length - 2) toDouble
 
         logger.debug(s"current rate is: $rate")
