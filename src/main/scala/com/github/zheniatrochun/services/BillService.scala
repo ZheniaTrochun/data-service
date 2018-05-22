@@ -3,7 +3,7 @@ package com.github.zheniatrochun.services
 import akka.actor.ActorRef
 import akka.http.javadsl.model.RequestEntity
 import akka.http.scaladsl.client.RequestBuilding
-import akka.http.scaladsl.model.HttpRequest
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import com.github.zheniatrochun.models.requests._
 import com.github.zheniatrochun.models.{Bill, BillBuilder, User}
 import akka.pattern.ask
@@ -41,19 +41,25 @@ class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef, val httpActo
 
   override def create(dto: BillDto, username: String): Future[Option[Int]] = {
 
-    dbActor ? CreateBill(BillBuilder(dto).build(), username) flatMap {
-      case bill: Bill =>
-        logger.debug(s"Bill creation OK, bill = $bill")
-//            publish to mq for statistics update
-//        mqActor ! PublishBill(bill)
-        httpActor ! SendRequestToStatistics(Promise(),
-          RequestBuilding.Post(s"/statistics/update",
-            StatsUpdate(username, dto.amount, bill.tags).toJson))
-        Future.successful(Some(bill.id.get))
+    httpActor ? AskRate(RequestBuilding.Get(s"/api/v5/convert?q=${dto.currency}_USD&compact=y")) flatMap {
+      case resp: HttpResponse =>
+        val raw = resp.entity.toJson.toString().split(":")(2)
+        val rate = raw.substring(0, raw.length - 2) toDouble
 
-      case _ =>
-        logger.error(s"Error in actor model")
-        Future.failed(new InternalError())
+        logger.debug(s"current rate is: $rate")
+
+        dbActor ? CreateBill(BillBuilder(dto).withAmount(dto.amount * rate).build(), username) flatMap {
+          case bill: Bill =>
+            logger.debug(s"Bill creation OK, bill = $bill")
+            //            publish to mq for statistics update
+            //        mqActor ! PublishBill(bill)
+            httpActor ! SendRequestToStatistics(RequestBuilding.Post(s"/statistics/update", StatsUpdate(username, dto.amount, bill.tags).toJson))
+            Future.successful(Some(bill.id.get))
+
+          case _ =>
+            logger.error(s"Error in actor model")
+            Future.failed(new InternalError())
+        }
     }
   }
 

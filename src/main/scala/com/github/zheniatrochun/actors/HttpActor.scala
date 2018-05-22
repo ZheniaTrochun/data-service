@@ -1,6 +1,8 @@
 package com.github.zheniatrochun.actors
 
+
 import akka.actor.{Actor, ActorSystem}
+import akka.pattern.pipe
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.stream.Materializer
@@ -12,6 +14,7 @@ import org.slf4j.LoggerFactory
 import scala.language.postfixOps
 import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class HttpActor(implicit val system: ActorSystem, implicit val mat: Materializer)
   extends Actor with AppConfig {
@@ -20,7 +23,7 @@ class HttpActor(implicit val system: ActorSystem, implicit val mat: Materializer
     Http().outgoingConnection(config.getString("services.data-service.host"))
 
   lazy val currencyApiConnectionFlow: Flow[HttpRequest, HttpResponse, Any] =
-    Http().outgoingConnection("free.currencyconverterapi.com")
+    Http().outgoingConnection(config.getString("currency-converter.api"))
 
   lazy val authServiceApiConnectionFlow: Flow[HttpRequest, HttpResponse, Any] =
     Http().outgoingConnection(config.getString("services.auth-service.host"))
@@ -31,56 +34,31 @@ class HttpActor(implicit val system: ActorSystem, implicit val mat: Materializer
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   override def receive = {
-    case SendRequestToAuth(promise, request) =>
+    case SendRequestToAuth(request) =>
       logger.debug(s"Sending request to auth-service req = $request")
-      Source.single(request).via(authServiceApiConnectionFlow).runWith(Sink.head) onComplete {
-        case Success(resp: HttpResponse) =>
-          logger.debug(s"Auth responded success resp = $resp")
-          promise.success(resp)
+      pipe { runWithFlow(request, authServiceApiConnectionFlow) } to sender
 
-        case Failure(ex) =>
-          logger.warn(s"Auth response failed with ex = $ex")
-          promise.failure(ex)
-      }
-
-    case SendRequestToData(promise, request) =>
+    case SendRequestToData(request) =>
       logger.debug(s"Sending request to data-service req = $request")
-      Source.single(request).via(dataServiceApiConnectionFlow).runWith(Sink.head) onComplete {
-        case Success(resp: HttpResponse) =>
-          logger.debug(s"Data responded success resp = $resp")
-          promise.success(resp)
+      pipe { runWithFlow(request, dataServiceApiConnectionFlow) } to sender
 
-        case Failure(ex) =>
-          logger.warn(s"Data response failed with ex = $ex")
-          promise.failure(ex)
-      }
-
-    case SendRequestToStatistics(promise, request) =>
+    case SendRequestToStatistics(request) =>
       logger.debug(s"Sending request to statistics-service req = $request")
-      Source.single(request).via(statsServiceApiConnectionFlow).runWith(Sink.head) onComplete {
-        case Success(resp: HttpResponse) =>
-          logger.debug(s"statistics responded success resp = $resp")
-          promise.success(resp)
+      pipe { runWithFlow(request, statsServiceApiConnectionFlow) } to sender
 
-        case Failure(ex) =>
-          logger.warn(s"statistics response failed with ex = $ex")
-          promise.failure(ex)
-      }
-
-    case AskRate(promise, request) =>
+    case AskRate(request) =>
       logger.debug(s"Sending request to currency converter req = $request")
-      Source.single(request).via(currencyApiConnectionFlow).runWith(Sink.head) onComplete {
-        case Success(resp: HttpResponse) =>
-          logger.debug(s"converter responded success resp = $resp")
-          promise.success(resp)
-
-        case Failure(ex) =>
-          logger.warn(s"converter response failed with ex = $ex")
-          promise.failure(ex)
-      }
+      pipe { runWithFlow(request, currencyApiConnectionFlow) } to sender
 
 
     case _ =>
       logger.error("Invalid request type!")
+  }
+
+  private def runWithFlow(request: HttpRequest, api: Flow[HttpRequest, HttpResponse, Any]): Future[HttpResponse] = {
+    Source.single(request).via(api).runWith(Sink.head) map { resp =>
+      logger.debug(s"Response for [${request.toString}] status = ${resp.status}, entity = ${resp.entity.toString}")
+      resp
+    }
   }
 }

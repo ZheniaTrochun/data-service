@@ -11,9 +11,10 @@ case class Bill(id: Option[Int], user: Int, date: Date, amount: Double, currency
   override def withId(id: Int) = this.copy(id = Some(id))
 }
 
-class BillBuilder(date: Date, amount: Double, currency: String, tags: String, wallet: Option[Int]) {
+class BillBuilder(date: Date, currency: String, tags: String, wallet: Option[Int]) {
   var id: Option[Int] = None
   var user: Int = 0
+  var amount: Double = 0
 
   def withUser(user: Int): this.type = {
     this.user = user
@@ -25,6 +26,11 @@ class BillBuilder(date: Date, amount: Double, currency: String, tags: String, wa
     this
   }
 
+  def withAmount(amount: Double): this.type = {
+    this.amount = amount
+    this
+  }
+
   def build(): Bill = {
     Bill(id, user, date, amount, currency, tags, wallet)
   }
@@ -32,5 +38,5 @@ class BillBuilder(date: Date, amount: Double, currency: String, tags: String, wa
 
 object BillBuilder {
   def apply(billDto: BillDto): BillBuilder =
-    new BillBuilder(billDto.date, billDto.amount, billDto.currency, billDto.tags.getOrElse("-"), billDto.wallet)
+    new BillBuilder(billDto.date, billDto.currency, billDto.tags.getOrElse("-"), billDto.wallet)
 }

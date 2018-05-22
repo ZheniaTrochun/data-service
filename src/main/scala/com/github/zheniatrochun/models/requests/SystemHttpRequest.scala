@@ -6,10 +6,10 @@ import scala.concurrent.Promise
 
 sealed trait SystemHttpRequest
 
-case class SendRequestToAuth(promise: Promise[HttpResponse], request: HttpRequest) extends SystemHttpRequest
+case class SendRequestToAuth(request: HttpRequest) extends SystemHttpRequest
 
-case class SendRequestToData(promise: Promise[HttpResponse], request: HttpRequest) extends SystemHttpRequest
+case class SendRequestToData(request: HttpRequest) extends SystemHttpRequest
 
-case class SendRequestToStatistics(promise: Promise[HttpResponse], request: HttpRequest) extends SystemHttpRequest
+case class SendRequestToStatistics(request: HttpRequest) extends SystemHttpRequest
 
-case class AskRate(promise: Promise[HttpResponse], request: HttpRequest) extends SystemHttpRequest
+case class AskRate(request: HttpRequest) extends SystemHttpRequest
