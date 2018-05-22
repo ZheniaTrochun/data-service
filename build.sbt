@@ -14,6 +14,7 @@ libraryDependencies ++= {
   val slickV = "3.2.0"
 
   Seq(
+    "io.jsonwebtoken" % "jjwt" % "0.9.0",
     "com.typesafe.akka"           %% "akka-actor"                           % akkaVersion,
     "com.typesafe.akka"           %% "akka-http"                            % akkaStreamVersion,
     "com.typesafe.akka"           %% "akka-http-core"                       % akkaStreamVersion,

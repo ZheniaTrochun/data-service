@@ -3,8 +3,7 @@ package com.github.zheniatrochun.services
 import akka.actor.ActorRef
 import akka.http.javadsl.model.RequestEntity
 import akka.http.scaladsl.client.RequestBuilding
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
-import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.http.scaladsl.model.HttpRequest
 import com.github.zheniatrochun.models.requests._
 import com.github.zheniatrochun.models.{Bill, BillBuilder, User}
 import akka.pattern.ask
@@ -42,33 +41,20 @@ class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef, val httpActo
 
   override def create(dto: BillDto, username: String): Future[Option[Int]] = {
 
-    val promise = Promise[HttpResponse]()
-    httpActor ! AskRate(promise,  RequestBuilding.Get(s"/api/v5/convert?q=${dto.currency}_USD&compact=y"))
-    promise.future flatMap { res =>
-      Unmarshal(res.entity).to[String].flatMap { json =>
-        val str = json.split(":")(2)
-        val rate = str.substring(0, str.length - 2) toDouble
+    dbActor ? CreateBill(BillBuilder(dto).build(), username) flatMap {
+      case bill: Bill =>
+        logger.debug(s"Bill creation OK, bill = $bill")
+//            publish to mq for statistics update
+//        mqActor ! PublishBill(bill)
+        httpActor ! SendRequestToStatistics(Promise(),
+          RequestBuilding.Post(s"/statistics/update",
+            StatsUpdate(username, dto.amount, bill.tags).toJson))
+        Future.successful(Some(bill.id.get))
 
-        val dtoNew = BillDto(dto.date, dto.amount * rate, dto.currency, dto.tags, dto.wallet)
-
-        dbActor ? CreateBill(BillBuilder(dtoNew).build(), username) flatMap {
-          case bill: Bill =>
-            logger.debug(s"Bill creation OK, bill = $bill")
-            //            publish to mq for statistics update
-            //        mqActor ! PublishBill(bill)
-            httpActor ! SendRequestToStatistics(Promise(),
-              RequestBuilding.Post(s"/statistics/update",
-                StatsUpdate(username, dtoNew.amount, dto.tags.getOrElse("-")).toJson))
-            Future.successful(Some(bill.id.get))
-
-          case _ =>
-            logger.error(s"Error in actor model")
-            Future.failed(new InternalError())
-        }
-
-      }
+      case _ =>
+        logger.error(s"Error in actor model")
+        Future.failed(new InternalError())
     }
-
   }
 
   override def update(bill: Bill) = {
@@ -147,5 +133,5 @@ class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef, val httpActo
     }
   }
 }
-case class StatsUpdate(user: String, data: Double, tad: String)
+case class StatsUpdate(user: String, data: Double, tag: String)
 
