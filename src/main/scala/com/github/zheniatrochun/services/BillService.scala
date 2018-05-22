@@ -4,9 +4,11 @@ import akka.actor.ActorRef
 import akka.http.javadsl.model.RequestEntity
 import akka.http.scaladsl.client.RequestBuilding
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
+import akka.http.scaladsl.unmarshalling.Unmarshal
 import com.github.zheniatrochun.models.requests._
 import com.github.zheniatrochun.models.{Bill, BillBuilder, User}
 import akka.pattern.ask
+import akka.stream.Materializer
 import akka.util.Timeout
 import com.github.zheniatrochun.models.dto.BillDto
 import com.github.zheniatrochun.models.json.JsonProtocol._
@@ -34,16 +36,17 @@ trait BillService {
 }
 
 class BillServiceImpl(val dbActor: ActorRef, val mqActor: ActorRef, val httpActor: ActorRef)
-                     (implicit val timeout: Timeout)
+                     (implicit val timeout: Timeout, implicit val mat: Materializer)
   extends BillService {
 
   val logger = LoggerFactory.getLogger(this.getClass)
 
   override def create(dto: BillDto, username: String): Future[Option[Int]] = {
 
+//    todo refactor
     httpActor ? AskRate(RequestBuilding.Get(s"/api/v5/convert?q=${dto.currency}_USD&compact=y")) flatMap {
       case resp: HttpResponse =>
-        val raw = resp.entity.toJson.toString().split(":")(2)
+        val raw = Unmarshal(resp.entity).to[String].result(timeout.duration).split(":")(2)
         val rate = raw.substring(0, raw.length - 2) toDouble
 
         logger.debug(s"current rate is: $rate")
